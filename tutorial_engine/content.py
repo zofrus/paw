@@ -1,0 +1,423 @@
+"""
+All tutorial page content. Plain strings and ASCII art.
+Each page is a dict with: title, section, body (list of lines), art (optional list of lines).
+"""
+
+# ── ASCII Art ──────────────────────────────────────────────
+
+PAW_LOGO = [
+    r"        _______________        ",
+    r"       /               \       ",
+    r"      |  ┌───┐ ┌───┐  |       ",
+    r"      |  │ ● │ │ ● │  |       ",
+    r"      |  └───┘ └───┘  |       ",
+    r"      |      ___      |       ",
+    r"      |     /   \     |       ",
+    r"      |    | === |    |       ",
+    r"       \   \_____/   /        ",
+    r"        \___________/         ",
+    r"         /    |    \          ",
+    r"        *     *     *         ",
+]
+
+SHIELD_ART = [
+    r"       ╔═══════════╗    ",
+    r"       ║  ┌─────┐  ║    ",
+    r"       ║  │ ██  │  ║    ",
+    r"       ║  │ ███ │  ║    ",
+    r"       ║  │ ██  │  ║    ",
+    r"       ║  └─────┘  ║    ",
+    r"       ╚═════╦═════╝    ",
+    r"             ║          ",
+    r"         HOOKS          ",
+    r"       ENFORCE          ",
+]
+
+FLOW_ART = [
+    r"  ┌──────────┐     ┌──────────┐     ┌──────────┐  ",
+    r"  │  AGENTS  │────▶│  SKILLS  │     │ CONTEXTS │  ",
+    r"  │ 12 roles │     │  domain  │     │  mindset │  ",
+    r"  └────┬─────┘     └──────────┘     └──────────┘  ",
+    r"       │                                  │        ",
+    r"       │ reference                   loaded by     ",
+    r"       ▼                                  │        ",
+    r"  ┌──────────┐                            │        ",
+    r"  │  RULES   │◄───────────────────────────┘        ",
+    r"  │ 6 pages  │                                     ",
+    r"  └────┬─────┘                                     ",
+    r"       │ enforced by                               ",
+    r"       ▼                                           ",
+    r"  ┌──────────┐                                     ",
+    r"  │  HOOKS   │  ◄── fire on Claude Code events     ",
+    r"  └──────────┘                                     ",
+]
+
+ROCKET_ART = [
+    r"           /\          ",
+    r"          /  \         ",
+    r"         / || \        ",
+    r"        /  ||  \       ",
+    r"       /   ||   \      ",
+    r"      / ┌──────┐ \    ",
+    r"     /  │ paw  │  \   ",
+    r"    /   │  =>  │   \  ",
+    r"   /    │forge │    \ ",
+    r"  ╱     └──────┘     ╲",
+    r" ╱___________________╲",
+    r"     ╱╱╱    ╲╲╲       ",
+    r"    ╱╱╱      ╲╲╲      ",
+]
+
+AGENTS_ART = [
+    r"  ┌─────────────────────────────────────────────┐  ",
+    r"  │             12 SPECIALIZED AGENTS            │  ",
+    r"  ├─────────────┬───────────────┬───────────────┤  ",
+    r"  │    PLAN     │    BUILD      │    REVIEW     │  ",
+    r"  ├─────────────┼───────────────┼───────────────┤  ",
+    r"  │ architect   │ builder       │ code-reviewer │  ",
+    r"  │ planner     │               │ bug-auditor   │  ",
+    r"  │ devils-     │               │ security      │  ",
+    r"  │  advocate   │               │ perf-checker  │  ",
+    r"  │             │               │ fe-reviewer   │  ",
+    r"  │             │               │ php-reviewer  │  ",
+    r"  │             │               │ test-runner   │  ",
+    r"  │             │               │ docs-writer   │  ",
+    r"  └─────────────┴───────────────┴───────────────┘  ",
+]
+
+PERMISSIONS_ART = [
+    r"  ┌─────────────────────────────────────────────────┐",
+    r"  │           AGENT PERMISSION TIERS                 │",
+    r"  ├─────────────────────────────────────────────────┤",
+    r"  │  READ ONLY  (9)   Can look. Can't touch.        │",
+    r"  │  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  │",
+    r"  │  READ+BASH  (1)   Can run tests. Can't edit.    │",
+    r"  │  ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒  │",
+    r"  │  READ+WRITE (1)   Can edit docs. Can't run.     │",
+    r"  │  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │",
+    r"  │  FULL       (1)   Full power. Isolated.         │",
+    r"  │  ████████████████████████████████████████████   │",
+    r"  ├─────────────────────────────────────────────────┤",
+    r"  │  11 of 12 agents have RESTRICTED permissions.   │",
+    r"  └─────────────────────────────────────────────────┘",
+]
+
+HOOK_DEMO_ART = [
+    r"  You type:  git rebase main                    ",
+    r"                                                ",
+    r"  ┌────────────────────────────────────────────┐",
+    r"  │  hooks/git_safety.py fires                 │",
+    r"  │                                            │",
+    r"  │  >>> BLOCKED <<<                            │",
+    r"  │                                            │",
+    r"  │  'git rebase rewrites published history.   │",
+    r"  │   Use git pull origin <branch> instead.'   │",
+    r"  │                                            │",
+    r"  │  The command NEVER executes.               │",
+    r"  └────────────────────────────────────────────┘",
+]
+
+# ── Pages ──────────────────────────────────────────────
+
+SECTIONS = [
+    "Welcome",
+    "The Problem",
+    "Components",
+    "Agents",
+    "Hooks & Rules",
+    "Getting Started",
+    "What's Next",
+]
+
+PAGES = [
+    # ── Section 0: Welcome ─────────────────────────────
+    {
+        "title": "Welcome to paw",
+        "section": "Welcome",
+        "art": PAW_LOGO,
+        "art_color": 1,  # cyan
+        "body": [
+            "",
+            "an AI SDLC starter kit",
+            "",
+            "Your AI agent writes code fast.",
+            "paw makes sure it writes code right.",
+            "",
+            "This tutorial walks you through how paw works",
+            "and how to start using it today.",
+            "",
+            "It takes about 5 minutes.",
+        ],
+        "typewriter_title": True,
+    },
+    {
+        "title": "What You'll Learn",
+        "section": "Welcome",
+        "body": [
+            "",
+            "  1.  Why your AI agent needs standards",
+            "",
+            "  2.  The 5 components of paw:",
+            "      agents, skills, hooks, rules, contexts",
+            "",
+            "  3.  How hooks mechanically block bad operations",
+            "",
+            "  4.  How to run specialized review agents",
+            "",
+            "  5.  How to install paw and start using it today",
+        ],
+    },
+
+    # ── Section 1: The Problem ─────────────────────────
+    {
+        "title": "The Problem",
+        "section": "The Problem",
+        "body": [
+            "",
+            '  You:    "Add a login endpoint"',
+            "",
+            "  AI:     + Wrote the endpoint",
+            "          + Handles POST /login",
+            "          + Returns a JWT",
+            "",
+            "          - No rate limiting",
+            "          - No brute-force protection",
+            "          - Logs the password in plaintext",
+            "          - JWT secret is hardcoded",
+            "          - No test",
+            "",
+            "  The AI did what you asked.",
+            "  The problem is what you DIDN'T ask.",
+        ],
+        "highlight": {"+": 2, "-": 3},  # green for +, yellow for -
+    },
+    {
+        "title": "Two Choices",
+        "section": "The Problem",
+        "body": [
+            "",
+            "  OPTION A:",
+            "  You review everything the AI writes.",
+            "  You are now a full-time AI babysitter.",
+            "  That doesn't scale.",
+            "",
+            "",
+            "  OPTION B:",
+            "  You teach the AI your standards,",
+            "  and build a system that enforces them",
+            "  BEFORE the code reaches you.",
+            "",
+            "",
+            "  paw is Option B.",
+        ],
+    },
+
+    # ── Section 2: Components ──────────────────────────
+    {
+        "title": "How It All Fits Together",
+        "section": "Components",
+        "art": FLOW_ART,
+        "art_color": 1,  # cyan
+        "body": [
+            "",
+            "  5 layers, each works independently.",
+            "  The pipeline composes them.",
+            "  It doesn't gate them.",
+        ],
+    },
+    {
+        "title": "The Five Layers",
+        "section": "Components",
+        "body": [
+            "",
+            "  AGENTS     12 specialized roles, scoped permissions",
+            "             Most can only READ your code.",
+            "",
+            "  SKILLS     7 domain knowledge bundles",
+            "             Architecture, security, frontend, PHP...",
+            "",
+            "  RULES      6 doctrine pages -- source of truth",
+            "             If rule contradicts agent, fix the agent.",
+            "",
+            "  HOOKS      4 enforcement triggers",
+            "             Fire on Claude Code events. Hard stops.",
+            "",
+            "  CONTEXTS   4 mindset modes",
+            "             dev, review, security, research",
+        ],
+    },
+
+    # ── Section 3: Agents ──────────────────────────────
+    {
+        "title": "12 Agents, 3 Phases",
+        "section": "Agents",
+        "art": AGENTS_ART,
+        "art_color": 1,
+        "body": [
+            "",
+            "  Each agent owns a phase or review dimension.",
+            "  Each has the minimum permissions for its job.",
+        ],
+    },
+    {
+        "title": "Trust Through Structural Limitation",
+        "section": "Agents",
+        "art": PERMISSIONS_ART,
+        "art_color": 4,  # magenta
+        "body": [
+            "",
+            "  The security-reviewer CANNOT modify your code.",
+            "  The test-runner CANNOT edit source files.",
+            "  The builder has full power -- but it's the only one.",
+        ],
+    },
+    {
+        "title": "Using Agents",
+        "section": "Agents",
+        "body": [
+            "",
+            "  Just ask Claude Code by name:",
+            "",
+            '  > Use the architect agent to design a solution',
+            '    for adding password reset.',
+            "",
+            '  > Use the security-reviewer agent to review',
+            '    this branch.',
+            "",
+            '  > Use the code-reviewer agent, then the',
+            '    bug-auditor agent, then the security-reviewer',
+            '    agent on the current diff.',
+            "",
+            "  Three independent perspectives.",
+            "  Each catches different things.",
+        ],
+    },
+
+    # ── Section 4: Hooks & Rules ───────────────────────
+    {
+        "title": "Hooks: Mechanical Enforcement",
+        "section": "Hooks & Rules",
+        "art": HOOK_DEMO_ART,
+        "art_color": 3,  # yellow
+        "body": [
+            "",
+            "  Hooks fire on Claude Code lifecycle events.",
+            "  They don't suggest. They BLOCK.",
+            "  The dangerous command never executes.",
+        ],
+    },
+    {
+        "title": "The Four Hooks",
+        "section": "Hooks & Rules",
+        "body": [
+            "",
+            "  git_safety.py        (PreToolUse)",
+            "    Blocks rebase, force-push, reset --hard",
+            "",
+            "  branch_guard.py      (PreToolUse)",
+            "    Blocks commits on main/master/develop",
+            "",
+            "  auto_test_detect.sh  (PostToolUse)",
+            "    Warns when source file has no test",
+            "",
+            "  _lib.py              (Shared helpers)",
+            "    read_payload, emit, find_project_root",
+            "",
+            "  Each hook is pipe-testable standalone.",
+            "  Wire them into ~/.claude/settings.json.",
+        ],
+    },
+    {
+        "title": "Rules: Standards as Doctrine",
+        "section": "Hooks & Rules",
+        "body": [
+            "",
+            "  6 rules. Each is a markdown file.",
+            "  Anyone can read them. Anyone can propose changes.",
+            "  But they're enforced, not suggested.",
+            "",
+            "  git-doctrine       Always merge, never rebase",
+            "  test-first         Tests before code, always",
+            "  error-handling     No silent failures, ever",
+            "  no-secrets-in-code Secrets in env vars only",
+            "  branch-hygiene     Feature branch per task",
+            "  security-basics    Validate input, encode output",
+            "",
+            "  Rule --> Agent enforces --> Hook blocks",
+        ],
+    },
+
+    # ── Section 5: Getting Started ─────────────────────
+    {
+        "title": "Install in 2 Minutes",
+        "section": "Getting Started",
+        "body": [
+            "",
+            "  Step 1: Clone paw",
+            "",
+            "    git clone https://github.com/zofrus/paw ~/.paw",
+            "",
+            "  Step 2: Add hooks to ~/.claude/settings.json:",
+            "",
+            '    "hooks": {',
+            '      "PreToolUse": [{',
+            '        "matcher": "Bash",',
+            '        "hooks": [',
+            '          {"type":"command",',
+            '           "command":"python3 ~/.paw/hooks/git_safety.py"},',
+            '          {"type":"command",',
+            '           "command":"python3 ~/.paw/hooks/branch_guard.py"}',
+            "        ]",
+            "      }]",
+            "    }",
+        ],
+    },
+    {
+        "title": "Try It Right Now",
+        "section": "Getting Started",
+        "body": [
+            "",
+            "  After installing, open Claude Code and try:",
+            "",
+            '    > run git rebase main',
+            "",
+            "  You'll see:",
+            "",
+            '    BLOCKED',
+            '    "git rebase rewrites published history.',
+            '     Use git pull origin <branch> instead."',
+            "",
+            "  Then try running a review agent:",
+            "",
+            '    > Use the code-reviewer agent on the',
+            '      current diff.',
+            "",
+            "  See what it finds that you wouldn't have.",
+        ],
+    },
+
+    # ── Section 6: What's Next ─────────────────────────
+    {
+        "title": "What's Next",
+        "section": "What's Next",
+        "art": ROCKET_ART,
+        "art_color": 2,  # green
+        "body": [
+            "",
+            "  TODAY:  Install the hooks. Try a review agent.",
+            "",
+            "  THIS WEEK:  Run 3 reviewers on your next PR.",
+            "    code-reviewer + bug-auditor + security-reviewer",
+            "",
+            "  NEXT WEEK:  Try the full workflow.",
+            "    architect -> planner -> devils-advocate",
+            "    -> builder -> code-reviewer",
+            "",
+            "  WHEN READY:  Graduate from paw to forge.",
+            "    46 agents, 15 parallel gates, self-healing.",
+            "",
+            "  Go build something.",
+        ],
+        "typewriter_title": True,
+    },
+]
