@@ -78,8 +78,39 @@ paw/
 │   ├── security.md
 │   └── research.md
 │
+├── tutorial         interactive TUI walkthrough
+├── tutorial_engine/ tutorial rendering engine
+│
 └── CLAUDE.md        project instructions for Claude Code
 ```
+
+## Interactive tutorial
+
+New to paw? Run the built-in tutorial. It walks you through every component with ASCII art, animations, and a skip-ahead option for the impatient.
+
+```bash
+git clone https://github.com/zofrus/paw.git ~/.paw
+cd ~/.paw
+./tutorial
+```
+
+```
+  ┌──────────────────────────────────────────────────────┐
+  │                                                      │
+  │   15 pages  ·  7 sections  ·  ~5 minutes             │
+  │                                                      │
+  │   [</>] Navigate   [s] Skip section   [q] Quit       │
+  │                                                      │
+  │   Covers: what paw is, agents, hooks, rules,         │
+  │   how to install, how to customize.                   │
+  │                                                      │
+  │   Requires: Python 3.10+, 80x24+ terminal            │
+  │   Dependencies: none (Python stdlib only)             │
+  │                                                      │
+  └──────────────────────────────────────────────────────┘
+```
+
+Animations are interruptible — any keypress during a typewriter or slide-in effect completes it instantly. You're never trapped waiting.
 
 ## Quick start
 
