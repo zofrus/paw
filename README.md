@@ -78,19 +78,28 @@ paw/
 │   ├── security.md
 │   └── research.md
 │
+├── setup            checks requirements, installs hooks
 ├── tutorial         interactive TUI walkthrough
 ├── tutorial_engine/ tutorial rendering engine
 │
 └── CLAUDE.md        project instructions for Claude Code
 ```
 
-## Interactive tutorial
+## Getting started
 
-New to paw? Run the built-in tutorial. It walks you through every component with ASCII art, animations, and a skip-ahead option for the impatient.
+### 1. Clone and run setup
 
 ```bash
 git clone https://github.com/zofrus/paw.git ~/.paw
 cd ~/.paw
+./setup
+```
+
+Setup checks everything you need (Python 3.10+, curses, git, terminal size, Claude Code) and walks you through installing hooks. If anything's missing, it tells you exactly how to fix it for your platform. It backs up your Claude Code settings before touching them.
+
+### 2. Run the interactive tutorial
+
+```bash
 ./tutorial
 ```
 
@@ -114,41 +123,15 @@ Animations are interruptible — any keypress during a typewriter or slide-in ef
 
 ## Quick start
 
-### Option 1: Hooks only (5 minutes)
-
-The fastest win. Git guardrails that prevent common mistakes.
+### Option 1: Run setup (recommended)
 
 ```bash
 git clone https://github.com/zofrus/paw.git ~/.paw
+cd ~/.paw
+./setup
 ```
 
-Add to your `~/.claude/settings.json`:
-
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          { "type": "command", "command": "python3 ~/.paw/hooks/git_safety.py" },
-          { "type": "command", "command": "python3 ~/.paw/hooks/branch_guard.py" }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          { "type": "command", "command": "bash ~/.paw/hooks/auto_test_detect.sh" }
-        ]
-      }
-    ]
-  }
-}
-```
-
-Now try `git rebase main` in Claude Code. It'll be blocked with an explanation.
+Setup checks requirements, installs hooks, and verifies everything works. If you want to install hooks manually instead, see `hooks/README.md`.
 
 ### Option 2: Agents on demand (10 minutes)
 

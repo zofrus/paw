@@ -1,0 +1,383 @@
+#!/usr/bin/env bash
+# paw setup — checks requirements, installs hooks, verifies everything works.
+# Run from the paw repo root: ./setup
+#
+# Safe and localized: modifies only ~/.claude/settings.json (with backup).
+# Does not install anything globally. Does not use sudo.
+
+set -uo pipefail
+
+# Detect non-interactive mode (piped stdin)
+INTERACTIVE=true
+if [ ! -t 0 ]; then
+    INTERACTIVE=false
+fi
+
+# ── Colors ─────────────────────────────────────────────
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+DIM='\033[2m'
+RESET='\033[0m'
+
+# ── Helpers ────────────────────────────────────────────
+
+pass_check() { printf "  ${GREEN}✓${RESET} %s\n" "$1"; }
+fail_check() { printf "  ${RED}✗${RESET} %s\n" "$1"; }
+warn_check() { printf "  ${YELLOW}!${RESET} %s\n" "$1"; }
+info()       { printf "  ${DIM}%s${RESET}\n" "$1"; }
+header()     { printf "\n${CYAN}${BOLD}%s${RESET}\n\n" "$1"; }
+step()       { printf "\n${BOLD}%s${RESET}\n" "$1"; }
+
+PAW_DIR="$(cd "$(dirname "$0")" && pwd)"
+ERRORS=0
+WARNINGS=0
+
+# ── Banner ─────────────────────────────────────────────
+
+clear 2>/dev/null || true
+printf "${CYAN}"
+cat << 'ART'
+
+        _______________
+       /               \
+      |  ┌───┐ ┌───┐  |
+      |  │ ● │ │ ● │  |
+      |  └───┘ └───┘  |
+      |      ___      |
+      |     /   \     |
+      |    | === |    |
+       \   \_____/   /
+        \___________/
+         /    |    \
+        *     *     *
+
+ART
+printf "${RESET}"
+printf "${BOLD}  paw setup${RESET}\n"
+printf "  ${DIM}Checking requirements and installing hooks.${RESET}\n"
+
+# ── Check 1: Python version ────────────────────────────
+
+header "1. Python"
+
+PYTHON_CMD=""
+MIN_MAJOR=3
+MIN_MINOR=10
+
+for cmd in python3 python; do
+    if command -v "$cmd" &>/dev/null; then
+        ver=$("$cmd" --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+        major=$(echo "$ver" | cut -d. -f1)
+        minor=$(echo "$ver" | cut -d. -f2)
+        if [ "$major" -ge "$MIN_MAJOR" ] && [ "$minor" -ge "$MIN_MINOR" ]; then
+            PYTHON_CMD="$cmd"
+            break
+        fi
+    fi
+done
+
+if [ -n "$PYTHON_CMD" ]; then
+    ver=$("$PYTHON_CMD" --version 2>&1)
+    path=$(command -v "$PYTHON_CMD")
+    pass_check "$ver ($path)"
+else
+    fail_check "Python 3.10+ not found."
+    ERRORS=$((ERRORS + 1))
+    printf "\n"
+    info "paw hooks and the tutorial require Python 3.10 or later."
+    info ""
+
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        info "Install options for macOS:"
+        info ""
+        info "  Homebrew (recommended):"
+        printf "    ${BOLD}brew install python@3.12${RESET}\n"
+        info ""
+        info "  python.org installer:"
+        info "    https://www.python.org/downloads/"
+    elif [[ "$OSTYPE" == "linux"* ]]; then
+        info "Install options for Linux:"
+        info ""
+        info "  Debian/Ubuntu:"
+        printf "    ${BOLD}sudo apt install python3.12${RESET}\n"
+        info ""
+        info "  Fedora/RHEL:"
+        printf "    ${BOLD}sudo dnf install python3.12${RESET}\n"
+    fi
+
+    info ""
+    info "After installing, re-run: ./setup"
+fi
+
+# ── Check 2: curses module ─────────────────────────────
+
+header "2. Python curses module"
+
+if [ -n "$PYTHON_CMD" ]; then
+    if "$PYTHON_CMD" -c "import curses" 2>/dev/null; then
+        pass_check "curses module available"
+    else
+        fail_check "curses module not available"
+        ERRORS=$((ERRORS + 1))
+        printf "\n"
+
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            info "macOS fix — reinstall Python with curses support:"
+            printf "    ${BOLD}brew reinstall python@3.12${RESET}\n"
+        elif [[ "$OSTYPE" == "linux"* ]]; then
+            info "Linux fix — install the curses package:"
+            printf "    ${BOLD}sudo apt install python3-curses${RESET}\n"
+            info "  or:"
+            printf "    ${BOLD}sudo apt install libncurses-dev && brew reinstall python@3.12${RESET}\n"
+        fi
+
+        info ""
+        info "Note: the hooks work without curses. Only the tutorial needs it."
+        info "You can skip the tutorial and still use paw."
+    fi
+else
+    warn_check "Skipped (Python not found)"
+    WARNINGS=$((WARNINGS + 1))
+fi
+
+# ── Check 3: Terminal size ─────────────────────────────
+
+header "3. Terminal"
+
+if command -v tput &>/dev/null; then
+    COLS=$(tput cols 2>/dev/null || echo 0)
+    ROWS=$(tput lines 2>/dev/null || echo 0)
+
+    if [ "$COLS" -ge 80 ] && [ "$ROWS" -ge 24 ]; then
+        pass_check "Terminal size: ${COLS}x${ROWS} (meets 80x24 minimum)"
+    else
+        warn_check "Terminal size: ${COLS}x${ROWS} (tutorial needs 80x24)"
+        WARNINGS=$((WARNINGS + 1))
+        info "Resize your terminal before running ./tutorial"
+        info "The hooks work at any terminal size."
+    fi
+else
+    warn_check "Cannot detect terminal size (tput not found)"
+    WARNINGS=$((WARNINGS + 1))
+fi
+
+# ── Check 4: Git ───────────────────────────────────────
+
+header "4. Git"
+
+if command -v git &>/dev/null; then
+    git_ver=$(git --version 2>&1)
+    pass_check "$git_ver"
+else
+    fail_check "git not found"
+    ERRORS=$((ERRORS + 1))
+    info "paw hooks need git for branch detection."
+
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        printf "    ${BOLD}xcode-select --install${RESET}\n"
+    fi
+fi
+
+# ── Check 5: Claude Code ──────────────────────────────
+
+header "5. Claude Code"
+
+CLAUDE_SETTINGS="$HOME/.claude/settings.json"
+
+if [ -d "$HOME/.claude" ]; then
+    pass_check "~/.claude/ directory exists"
+
+    if [ -f "$CLAUDE_SETTINGS" ]; then
+        pass_check "settings.json exists"
+    else
+        warn_check "settings.json not found (will create during hook install)"
+        WARNINGS=$((WARNINGS + 1))
+    fi
+else
+    warn_check "~/.claude/ not found — is Claude Code installed?"
+    WARNINGS=$((WARNINGS + 1))
+    info "Install Claude Code: https://docs.anthropic.com/en/docs/claude-code"
+    info "Or: npm install -g @anthropic-ai/claude-code"
+    info ""
+    info "You can still explore paw without Claude Code."
+    info "The tutorial, rules, and skills work standalone."
+fi
+
+# ── Check 6: Hook files are executable ─────────────────
+
+header "6. Hook files"
+
+hook_ok=true
+for hook in "$PAW_DIR/hooks/git_safety.py" "$PAW_DIR/hooks/branch_guard.py" "$PAW_DIR/hooks/auto_test_detect.sh"; do
+    if [ -f "$hook" ]; then
+        if [ -x "$hook" ]; then
+            pass_check "$(basename "$hook") (executable)"
+        else
+            warn_check "$(basename "$hook") not executable — fixing"
+            chmod +x "$hook"
+            pass_check "$(basename "$hook") (fixed)"
+        fi
+    else
+        fail_check "$(basename "$hook") missing"
+        hook_ok=false
+        ERRORS=$((ERRORS + 1))
+    fi
+done
+
+if [ -n "$PYTHON_CMD" ] && [ "$hook_ok" = true ]; then
+    result=$(echo '{"tool_input":{"command":"git rebase main"}}' | "$PYTHON_CMD" "$PAW_DIR/hooks/git_safety.py" 2>&1 || true)
+    if echo "$result" | grep -q "block"; then
+        pass_check "git_safety.py blocks rebase (verified)"
+    else
+        fail_check "git_safety.py did not block rebase"
+        ERRORS=$((ERRORS + 1))
+    fi
+fi
+
+# ── Summary ────────────────────────────────────────────
+
+header "Summary"
+
+if [ "$ERRORS" -eq 0 ]; then
+    printf "  ${GREEN}${BOLD}All checks passed.${RESET}"
+    if [ "$WARNINGS" -gt 0 ]; then
+        printf " ${YELLOW}($WARNINGS warnings)${RESET}"
+    fi
+    printf "\n"
+else
+    printf "  ${RED}${BOLD}$ERRORS error(s)${RESET}"
+    if [ "$WARNINGS" -gt 0 ]; then
+        printf ", ${YELLOW}$WARNINGS warning(s)${RESET}"
+    fi
+    printf "\n"
+    info "Fix the errors above, then re-run: ./setup"
+
+    if [ "$ERRORS" -gt 0 ]; then
+        if [ "$INTERACTIVE" = true ]; then
+            printf "\n"
+            read -rp "  Continue anyway? (hooks may not work) [y/N] " cont
+            if [[ ! "$cont" =~ ^[Yy]$ ]]; then
+                printf "\n  ${DIM}Fix the issues and re-run ./setup${RESET}\n\n"
+                exit 1
+            fi
+        else
+            printf "\n  ${DIM}Fix the issues and re-run ./setup interactively.${RESET}\n\n"
+            exit 1
+        fi
+    fi
+fi
+
+# ── Install hooks ──────────────────────────────────────
+
+header "Install Hooks"
+
+if [ ! -d "$HOME/.claude" ]; then
+    printf "  Claude Code directory not found. Skipping hook install.\n"
+    info "Run ./setup again after installing Claude Code."
+else
+    printf "  paw can add git safety hooks to your Claude Code settings.\n"
+    printf "  This modifies: ${BOLD}~/.claude/settings.json${RESET}\n"
+    printf "  A backup will be saved as settings.json.paw-backup\n"
+    printf "\n"
+    if [ "$INTERACTIVE" = true ]; then
+        read -rp "  Install hooks to Claude Code? [Y/n] " install_hooks
+    else
+        install_hooks="y"
+        info "Non-interactive mode: auto-installing hooks."
+    fi
+
+    if [[ ! "$install_hooks" =~ ^[Nn]$ ]]; then
+        # Back up existing settings
+        if [ -f "$CLAUDE_SETTINGS" ]; then
+            cp "$CLAUDE_SETTINGS" "${CLAUDE_SETTINGS}.paw-backup"
+            pass_check "Backed up settings.json -> settings.json.paw-backup"
+        fi
+
+        # Generate the hooks config using Python for reliable JSON handling
+        if [ -n "$PYTHON_CMD" ]; then
+            "$PYTHON_CMD" << PYEOF
+import json, os, sys
+
+settings_path = os.path.expanduser("~/.claude/settings.json")
+paw_dir = "$PAW_DIR"
+
+# Load existing settings or start fresh
+if os.path.exists(settings_path):
+    with open(settings_path) as f:
+        try:
+            settings = json.load(f)
+        except json.JSONDecodeError:
+            settings = {}
+else:
+    os.makedirs(os.path.dirname(settings_path), exist_ok=True)
+    settings = {}
+
+hooks = settings.setdefault("hooks", {})
+
+# paw PreToolUse hooks
+paw_pre = [
+    {"type": "command", "command": f"python3 {paw_dir}/hooks/git_safety.py"},
+    {"type": "command", "command": f"python3 {paw_dir}/hooks/branch_guard.py"},
+]
+
+# paw PostToolUse hooks
+paw_post = [
+    {"type": "command", "command": f"bash {paw_dir}/hooks/auto_test_detect.sh"},
+]
+
+# Merge into existing hooks without duplicating
+pre_entries = hooks.get("PreToolUse", [])
+post_entries = hooks.get("PostToolUse", [])
+
+# Check if paw hooks already installed
+paw_cmds = {h["command"] for h in paw_pre + paw_post}
+existing_cmds = set()
+for entry in pre_entries + post_entries:
+    for h in entry.get("hooks", []):
+        existing_cmds.add(h.get("command", ""))
+
+if paw_cmds & existing_cmds:
+    print("  paw hooks already installed in settings.json.")
+    sys.exit(0)
+
+# Add paw hooks
+pre_entries.append({"matcher": "Bash", "hooks": paw_pre})
+post_entries.append({"matcher": "Write|Edit", "hooks": paw_post})
+
+hooks["PreToolUse"] = pre_entries
+hooks["PostToolUse"] = post_entries
+
+with open(settings_path, "w") as f:
+    json.dump(settings, f, indent=2)
+    f.write("\n")
+
+print("  Hooks installed successfully.")
+PYEOF
+            pass_check "Hooks added to ~/.claude/settings.json"
+        else
+            fail_check "Python not available — cannot write settings.json"
+            info "Manual install instructions are in hooks/README.md"
+        fi
+    else
+        info "Skipped. You can install hooks later with ./setup"
+        info "Or follow the manual steps in hooks/README.md"
+    fi
+fi
+
+# ── Next steps ─────────────────────────────────────────
+
+header "You're Ready"
+
+printf "  ${BOLD}Next steps:${RESET}\n\n"
+printf "  ${CYAN}1.${RESET} Run the interactive tutorial:\n"
+printf "     ${BOLD}./tutorial${RESET}\n\n"
+printf "  ${CYAN}2.${RESET} Try the hooks in Claude Code:\n"
+printf "     ${DIM}Type 'git rebase main' and watch it get blocked.${RESET}\n\n"
+printf "  ${CYAN}3.${RESET} Run a review agent:\n"
+printf "     ${DIM}> Use the code-reviewer agent on the current diff.${RESET}\n\n"
+printf "  ${CYAN}4.${RESET} Read the docs:\n"
+printf "     ${DIM}agents/README.md  hooks/README.md  rules/README.md${RESET}\n\n"
