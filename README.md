@@ -1,0 +1,254 @@
+# paw
+
+```
+        _______________
+       /               \
+      |  ┌───┐ ┌───┐  |
+      |  │ ● │ │ ● │  |
+      |  └───┘ └───┘  |
+      |      ___      |
+      |     /   \     |
+      |    | ◡◡◡ |    |
+       \   \_____/   /
+        \___________/
+         /    |    \
+        🐾   🐾   🐾
+
+     p a w
+     an AI SDLC starter kit
+```
+
+> Your AI agent writes code fast. paw makes sure it writes code *right*.
+
+## What is this?
+
+paw is a lightweight, composable AI SDLC (Software Development Lifecycle) toolkit. It gives your AI coding agent:
+
+- **Standards that are enforced, not suggested** — rules that hooks block on, not READMEs people skip
+- **Specialized reviewers** — 12 agents that each check a different dimension of code quality
+- **Domain knowledge** — 7 skill bundles for architecture, security, frontend, PHP/Laravel, and more
+- **Git guardrails** — hooks that mechanically prevent rebase, force-push, and commits to main
+
+paw is extracted from [forge](https://github.com/zofrus/forge), a full 16-phase multi-agent delivery pipeline. paw is the starter kit — the pieces you can adopt today without the full pipeline.
+
+## What's inside
+
+```
+paw/
+├── agents/          12 specialized agents (plan, build, review)
+│   ├── architect.md
+│   ├── planner.md
+│   ├── devils-advocate.md
+│   ├── code-reviewer.md
+│   ├── bug-auditor.md
+│   ├── security-reviewer.md
+│   ├── builder.md
+│   ├── test-runner.md
+│   ├── perf-checker.md
+│   ├── docs-writer.md
+│   ├── fe-reviewer.md
+│   └── php-reviewer.md
+│
+├── skills/          7 domain knowledge bundles
+│   ├── architecture/
+│   ├── devils-advocate/
+│   ├── frontend/
+│   ├── php-laravel/
+│   ├── security/
+│   ├── quality-gate/
+│   └── git-safety/
+│
+├── hooks/           4 enforcement hooks
+│   ├── git_safety.py
+│   ├── branch_guard.py
+│   ├── auto_test_detect.sh
+│   └── _lib.py
+│
+├── rules/           6 doctrine pages
+│   ├── git-doctrine.md
+│   ├── test-first.md
+│   ├── error-handling.md
+│   ├── no-secrets-in-code.md
+│   ├── branch-hygiene.md
+│   └── security-basics.md
+│
+├── contexts/        4 task-mode prompts
+│   ├── dev.md
+│   ├── review.md
+│   ├── security.md
+│   └── research.md
+│
+└── CLAUDE.md        project instructions for Claude Code
+```
+
+## Quick start
+
+### Option 1: Hooks only (5 minutes)
+
+The fastest win. Git guardrails that prevent common mistakes.
+
+```bash
+git clone https://github.com/zofrus/paw.git ~/.paw
+```
+
+Add to your `~/.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "python3 ~/.paw/hooks/git_safety.py" },
+          { "type": "command", "command": "python3 ~/.paw/hooks/branch_guard.py" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "bash ~/.paw/hooks/auto_test_detect.sh" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Now try `git rebase main` in Claude Code. It'll be blocked with an explanation.
+
+### Option 2: Agents on demand (10 minutes)
+
+Use any agent by name in Claude Code:
+
+```
+> Use the security-reviewer agent to review this branch.
+> Use the architect agent to design a solution for adding password reset.
+> Use the fe-reviewer agent on the React components I just changed.
+> Use the bug-auditor agent on the current diff.
+> Use the php-reviewer agent on the Laravel controllers in this PR.
+```
+
+### Option 3: Full quality review
+
+Run multiple review agents for a comprehensive check:
+
+```
+> Use the code-reviewer agent, then the bug-auditor agent,
+  then the security-reviewer agent on the current diff.
+```
+
+Three independent perspectives — correctness, latent bugs, and security — each from a specialist.
+
+### Option 4: Plan, Build, Review workflow
+
+The full lightweight SDLC:
+
+```
+> Use the architect agent to design a solution for [your task].
+> Use the planner agent to turn the architecture into a plan.
+> Use the devils-advocate agent to critique the plan.
+> Use the builder agent to implement workstream 1.
+> Use the code-reviewer agent on the changes.
+```
+
+## How it works
+
+```
+┌──────────┐     ┌──────────┐     ┌──────────┐
+│  AGENTS  │────▶│  SKILLS  │     │ CONTEXTS │
+│ 12 roles │     │  domain  │     │  mindset │
+│ scoped   │     │  know-   │     │  modes   │
+│ perms    │     │  ledge   │     │          │
+└────┬─────┘     └──────────┘     └──────────┘
+     │                                  │
+     │ reference                   loaded by
+     ▼                                  │
+┌──────────┐                            │
+│  RULES   │◄───────────────────────────┘
+│ 6 pages  │
+└────┬─────┘
+     │ enforced by
+     ▼
+┌──────────┐
+│  HOOKS   │  ◄── fire on Claude Code events
+│ 4 files  │
+└──────────┘
+```
+
+- **Agents** do the work. Each has scoped permissions (most are read-only).
+- **Skills** provide domain knowledge. Agents load them for expertise.
+- **Contexts** set the mindset (building vs reviewing vs security audit).
+- **Rules** are the source of truth. Agents reference them.
+- **Hooks** enforce rules mechanically. They fire on Claude Code events.
+
+## Agent permissions
+
+Most agents can only read. This is by design.
+
+| Tier | Agents | Can do |
+|---|---|---|
+| **Read-only** | architect, planner, devils-advocate, code-reviewer, bug-auditor, security-reviewer, perf-checker, fe-reviewer, php-reviewer | Look and report. Cannot modify files. |
+| **Read + Bash** | test-runner | Run tests. Cannot edit code. |
+| **Read + Write** | docs-writer | Edit documentation. Cannot run commands. |
+| **Full** | builder | Read, write, execute. For implementation. |
+
+## Customizing
+
+### Add a rule
+
+Create `rules/your-rule.md`:
+
+```markdown
+# Your Rule Name
+
+**Statement:** One sentence.
+
+**Why:** Why this matters.
+
+## Hard rules
+- ...
+
+## Soft rules
+- ...
+
+**Enforced by:** which agents/hooks check this.
+```
+
+Then reference it in the relevant agent's Rules section.
+
+### Add an agent
+
+Create `agents/your-agent.md` with frontmatter:
+
+```yaml
+---
+name: your-agent
+description: What it does in one line.
+model: sonnet
+tools: Read, Grep, Glob
+---
+```
+
+Then add: Role, Context, Rules, Process, Done when.
+
+### Add a skill
+
+Create `skills/your-skill/SKILL.md` with the domain knowledge. Reference it from relevant agents.
+
+## What this is NOT
+
+- **Not a pipeline.** paw is tools, not a workflow. You invoke what you need.
+- **Not a replacement for human review.** Agents augment. Humans decide.
+- **Not opinionated about your stack.** Works with any language, any framework.
+- **Not a vendor product.** You own it. Fork it. Change it. Delete what you don't need.
+
+## Want the full pipeline?
+
+paw is the starter kit. [forge](https://github.com/zofrus/forge) is the full 16-phase delivery pipeline with 46 agents, 15 parallel quality gates, self-healing, heartbeat monitoring, and durable state. Start with paw, graduate to forge when you're ready.
+
+## License
+
+MIT
