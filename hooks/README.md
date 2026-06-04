@@ -1,13 +1,14 @@
 # paw hooks
 
-Four hooks. Each fires on a Claude Code lifecycle event. Each testable standalone before wiring.
+Four hooks plus shared helpers and an installer. Each hook fires on a Claude Code lifecycle event. Each testable standalone before wiring.
 
-| Hook | Event | Matcher | What it does |
+| File | Event | Matcher | What it does |
 |---|---|---|---|
 | `git_safety.py` | PreToolUse | Bash | Block rebase, force-push, branch -D, reset --hard, checkout . |
 | `branch_guard.py` | PreToolUse | Bash | Block commits on main/master/develop/trunk/release |
 | `auto_test_detect.sh` | PostToolUse | Write\|Edit | Warn when source file has no corresponding test file |
 | `_lib.py` | — | — | Shared helpers (read_payload, emit, find_project_root) |
+| `install_hooks.py` | — | — | Installer: adds hooks to ~/.claude/settings.json (used by `./setup`) |
 
 ## Install
 
