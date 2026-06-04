@@ -1,7 +1,7 @@
 [project]
 name = "paw"
 version = "0.2.0"
-description = "An AI SDLC starter kit — agents, skills, hooks, rules, and contexts for governed AI-assisted development."
+description = "Personal Agent Workflows — an AI SDLC starter kit with agents, skills, hooks, rules, and contexts."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
@@ -9,6 +9,7 @@ authors = [{ name = "Jay Fuller" }]
 
 [tool.ruff]
 target-version = "py310"
+exclude = ["examples/"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W"]

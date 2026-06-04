@@ -154,6 +154,7 @@ PAGES = [
         "art_color": 1,  # cyan
         "body": [
             "",
+            "Personal Agent Workflows",
             "an AI SDLC starter kit",
             "",
             "Your AI agent writes code fast.",
