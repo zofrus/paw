@@ -104,6 +104,20 @@ PERMISSIONS_ART = [
     r"  └─────────────────────────────────────────────────┘",
 ]
 
+DISTINCTION_ART = [
+    r"  ┌──────────┬──────────────┬──────────────┬──────────────┐",
+    r"  │          │   AGENTS     │   SKILLS     │   HOOKS      │",
+    r"  ├──────────┼──────────────┼──────────────┼──────────────┤",
+    r"  │ What     │ AI actors    │ Knowledge    │ Scripts      │",
+    r"  │ Has AI?  │ Yes          │ No (teaches) │ No (enforces)│",
+    r"  │ Decides? │ Yes-judgment │ No-informs   │ No-reacts    │",
+    r"  │ Runs     │ On dispatch  │ When loaded  │ On events    │",
+    r"  │ Can fail │ Yes (retry)  │ N/A          │ Yes (blocks) │",
+    r"  │ Count    │ 18           │ 7            │ 4            │",
+    r"  │ Lives in │ agents/      │ skills/      │ hooks/       │",
+    r"  └──────────┴──────────────┴──────────────┴──────────────┘",
+]
+
 HOOK_DEMO_ART = [
     r"  You type:  git rebase main                    ",
     r"                                                ",
@@ -245,6 +259,47 @@ PAGES = [
             "",
             "  CONTEXTS   4 mindset modes",
             "             dev, review, security, research",
+        ],
+    },
+    {
+        "title": "The Key Distinction",
+        "section": "Components",
+        "art": DISTINCTION_ART,
+        "art_color": 3,  # yellow
+        "body": [
+            "",
+            "  Agents without skills are smart but",
+            "  uninformed.",
+            "",
+            "  Skills without agents are knowledge",
+            "  with no one to use it.",
+            "",
+            "  Hooks without either still enforce",
+            "  the rules -- that's the point.",
+        ],
+    },
+    {
+        "title": "What Is An Agent, Really?",
+        "section": "Components",
+        "body": [
+            "",
+            "  An agent is an LLM given a job.",
+            "",
+            "  Whether it's on your laptop, in a",
+            "  company product, or in a platform",
+            "  like Artemis -- the concept is the same:",
+            "",
+            "  MODEL     An LLM (Claude, GPT, etc.)",
+            "  CONTEXT   What it knows about the task",
+            "  PERSONA   How it behaves (reviewer, builder)",
+            "  SCOPE     What it's allowed to touch",
+            "  RULES     What standards it follows",
+            "  TOOLS     What actions it can take",
+            "",
+            "  paw's agents are markdown files that",
+            "  define all six of these. That's it.",
+            "  No magic. No framework. Just a scoped",
+            "  LLM with a clear job description.",
         ],
     },
     # ── Section 3: Agents ──────────────────────────────
