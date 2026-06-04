@@ -37,6 +37,31 @@ def init_colors():
 # ── Safe drawing ──────────────────────────────────────
 
 
+def display_width(text):
+    """Calculate terminal display width accounting for wide characters."""
+    import unicodedata
+
+    w = 0
+    for ch in text:
+        eaw = unicodedata.east_asian_width(ch)
+        w += 2 if eaw in ("W", "F") else 1
+    return w
+
+
+def truncate_to_width(text, max_width):
+    """Truncate text to fit within max_width terminal columns."""
+    import unicodedata
+
+    w = 0
+    for i, ch in enumerate(text):
+        eaw = unicodedata.east_asian_width(ch)
+        cw = 2 if eaw in ("W", "F") else 1
+        if w + cw > max_width:
+            return text[:i]
+        w += cw
+    return text
+
+
 def safe_addstr(win, y, x, text, attr=0):
     h, w = win.getmaxyx()
     if y < 0 or y >= h or x < 0:
@@ -45,7 +70,7 @@ def safe_addstr(win, y, x, text, attr=0):
     if available <= 0:
         return
     try:
-        win.addstr(y, x, text[:available], attr)
+        win.addstr(y, x, truncate_to_width(text, available), attr)
     except curses.error:
         pass
 

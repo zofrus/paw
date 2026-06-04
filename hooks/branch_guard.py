@@ -12,13 +12,20 @@ from _lib import read_payload, emit
 PROTECTED = {"main", "master", "develop", "trunk", "release"}
 
 
-def current_branch():
+def parse_git_cwd(cmd):
+    """Extract -C <dir> from a git command, if present."""
+    match = re.search(r"\bgit\s+-C\s+(\S+)", cmd)
+    return match.group(1) if match else None
+
+
+def current_branch(cwd=None):
     try:
         result = subprocess.run(
             ["git", "rev-parse", "--abbrev-ref", "HEAD"],
             capture_output=True,
             text=True,
             timeout=5,
+            cwd=cwd,
         )
         return result.stdout.strip() if result.returncode == 0 else None
     except Exception:
@@ -32,7 +39,8 @@ def main():
     if not re.search(r"\bgit\s+commit\b", cmd):
         return
 
-    branch = current_branch()
+    git_cwd = parse_git_cwd(cmd)
+    branch = current_branch(cwd=git_cwd)
     if branch is None:
         emit(
             "Could not determine current branch. Commit blocked as a precaution.",

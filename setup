@@ -84,8 +84,7 @@ done
 
 if [ -n "$PYTHON_CMD" ]; then
     ver=$("$PYTHON_CMD" --version 2>&1)
-    path=$(command -v "$PYTHON_CMD")
-    pass_check "$ver ($path)"
+    pass_check "$ver"
 else
     fail_check "Python 3.10+ not found."
     ERRORS=$((ERRORS + 1))
@@ -288,9 +287,17 @@ else
     if [ "$INTERACTIVE" = true ]; then
         read -rp "  Install hooks to Claude Code? [Y/n] " install_hooks
     else
-        install_hooks="y"
-        info "Non-interactive mode: auto-installing hooks."
+        install_hooks="n"
+        info "Non-interactive mode: skipping hook install."
+        info "Run ./setup interactively to install hooks, or pass --yes."
     fi
+
+    # Allow explicit --yes flag for non-interactive install
+    for arg in "$@"; do
+        if [ "$arg" = "--yes" ] || [ "$arg" = "-y" ]; then
+            install_hooks="y"
+        fi
+    done
 
     if [[ ! "$install_hooks" =~ ^[Nn]$ ]]; then
         # Back up existing settings
@@ -323,5 +330,7 @@ printf "  ${CYAN}2.${RESET} Try the hooks in Claude Code:\n"
 printf "     ${DIM}Type 'git rebase main' and watch it get blocked.${RESET}\n\n"
 printf "  ${CYAN}3.${RESET} Run a review agent:\n"
 printf "     ${DIM}> Use the code-reviewer agent on the current diff.${RESET}\n\n"
-printf "  ${CYAN}4.${RESET} Read the docs:\n"
+printf "  ${CYAN}4.${RESET} Using Cursor? Rules auto-loaded from .cursor/rules/\n\n"
+printf "  ${CYAN}5.${RESET} Using Codex CLI? Agent index in AGENTS.md\n\n"
+printf "  ${CYAN}6.${RESET} Read the docs:\n"
 printf "     ${DIM}agents/README.md  hooks/README.md  rules/README.md${RESET}\n\n"

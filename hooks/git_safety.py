@@ -19,6 +19,23 @@ BLOCKS = [
         "PAW_ALLOW_REBASE",
         "git pull --rebase rewrites history. Use 'git pull' (merge) instead.",
     ),
+    # --force and -f are blocked. --force-with-lease is intentionally ALLOWED.
+    #
+    # For 99% of workflows, just pulling first is the right move — and that's
+    # what paw's git doctrine enforces. --force-with-lease exists for the 1%
+    # case where you can't pull because the history has intentionally diverged.
+    #
+    # The real scenario: you rebased a local branch (rewriting commits), or you
+    # amended a commit you already pushed to a feature branch. Now your local
+    # and remote histories are incompatible — git pull would create a merge
+    # conflict with yourself. A regular git push is rejected. You need to
+    # overwrite the remote, but you want to make sure nobody else pushed to
+    # that branch while you weren't looking.
+    #
+    # --force-with-lease refuses to push if the remote has changed since your
+    # last fetch. It's a force push with a safety check. That's the only
+    # legitimate use. paw allows it but doesn't encourage it — if you follow
+    # paw's "never rebase published history" rule, you'll never need it.
     (
         r"\bgit\s+push\s+.*(-f\b|--force(?!-with-lease)\b)",
         "PAW_ALLOW_FORCE_PUSH",
