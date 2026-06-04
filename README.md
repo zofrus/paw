@@ -25,7 +25,7 @@
 paw is a lightweight, composable AI SDLC (Software Development Lifecycle) toolkit. It gives your AI coding agent:
 
 - **Standards that are enforced, not suggested** — rules that hooks block on, not READMEs people skip
-- **Specialized reviewers** — 12 agents that each check a different dimension of code quality
+- **Specialized reviewers** — 18 agents that each check a different dimension of code quality
 - **Domain knowledge** — 7 skill bundles for architecture, security, frontend, PHP/Laravel, and more
 - **Git guardrails** — hooks that mechanically prevent rebase, force-push, and commits to main
 
@@ -35,19 +35,18 @@ paw is extracted from [forge](https://github.com/zofrus/forge), a full 16-phase 
 
 ```
 paw/
-├── agents/          12 specialized agents (plan, build, review)
-│   ├── architect.md
-│   ├── planner.md
-│   ├── devils-advocate.md
-│   ├── code-reviewer.md
-│   ├── bug-auditor.md
-│   ├── security-reviewer.md
-│   ├── builder.md
-│   ├── test-runner.md
-│   ├── perf-checker.md
-│   ├── docs-writer.md
-│   ├── fe-reviewer.md
-│   └── php-reviewer.md
+├── agents/          18 specialized agents
+│   ├── architect.md         planner.md
+│   ├── devils-advocate.md   rollback-planner.md
+│   ├── code-reviewer.md     bug-auditor.md
+│   ├── security-reviewer.md perf-checker.md
+│   ├── fe-reviewer.md       php-reviewer.md
+│   ├── builder.md           merge-resolver.md
+│   ├── migration-architect.md
+│   ├── incident-commander.md
+│   ├── test-runner.md       integration-tester.md
+│   ├── environment-checker.md
+│   └── docs-writer.md
 │
 ├── skills/          7 domain knowledge bundles
 │   ├── architecture/
@@ -82,7 +81,9 @@ paw/
 ├── tutorial         interactive TUI walkthrough
 ├── tutorial_engine/ tutorial rendering engine
 │
-└── CLAUDE.md        project instructions for Claude Code
+├── CLAUDE.md        project instructions (Claude Code)
+├── AGENTS.md        agent index (Codex CLI)
+└── .cursor/rules/   Cursor IDE integration
 ```
 
 ## Getting started
@@ -204,10 +205,10 @@ Most agents can only read. This is by design.
 
 | Tier | Agents | Can do |
 |---|---|---|
-| **Read-only** | architect, planner, devils-advocate, code-reviewer, bug-auditor, security-reviewer, perf-checker, fe-reviewer, php-reviewer | Look and report. Cannot modify files. |
-| **Read + Bash** | test-runner | Run tests. Cannot edit code. |
-| **Read + Write** | docs-writer | Edit documentation. Cannot run commands. |
-| **Full** | builder | Read, write, execute. For implementation. |
+| **Read-only** | architect, planner, devils-advocate, code-reviewer, bug-auditor, security-reviewer, perf-checker, fe-reviewer, php-reviewer, rollback-planner | Look and report. Cannot modify. |
+| **Read + Bash** | test-runner, integration-tester, environment-checker | Run tests/checks. Cannot edit code. |
+| **Read + Write** | docs-writer | Edit docs. Cannot run commands. |
+| **Full** | builder, merge-resolver, migration-architect, incident-commander | Implementation and operations. |
 
 ## Customizing
 
@@ -251,6 +252,24 @@ Then add: Role, Context, Rules, Process, Done when.
 ### Add a skill
 
 Create `skills/your-skill/SKILL.md` with the domain knowledge. Reference it from relevant agents.
+
+## Works with
+
+### Claude Code
+
+paw was built for Claude Code. Agents, hooks, skills, and contexts integrate natively. Run `./setup` to install hooks, then invoke agents by name.
+
+### Cursor
+
+paw ships with `.cursor/rules/paw.mdc` — Cursor loads it automatically. It references all agents, skills, and rules so Cursor knows your team's standards. No configuration needed beyond cloning the repo into your project.
+
+### OpenAI Codex CLI
+
+paw ships with `AGENTS.md` at the repo root. Codex CLI reads this file to discover agent definitions. Reference agents by name in your prompts just like Claude Code.
+
+### Any AI coding tool
+
+The agents, rules, and skills are plain markdown files. Any tool that reads markdown context (Windsurf, Aider, Continue, etc.) can use them. Point your tool at the relevant `.md` file.
 
 ## What this is NOT
 

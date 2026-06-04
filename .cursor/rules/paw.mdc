@@ -1,0 +1,59 @@
+---
+description: paw AI SDLC rules for Cursor
+globs: ["**/*"]
+---
+
+# paw — AI SDLC rules for Cursor
+
+You have access to specialized agent definitions in the `agents/` directory. Reference them when the task matches their specialty.
+
+## Git rules (enforced)
+
+- Always `git pull` (merge, not rebase) before push
+- Never `git rebase` against published history
+- Never `git push --force`
+- Never commit to `main` directly — use a feature branch
+- Always verify `git branch` before committing
+
+## Code rules
+
+- Tests before or alongside code. Never after.
+- No silent failures — every catch block must log or re-throw.
+- No secrets in source code — use environment variables.
+- Validate input at boundaries. Encode output for context.
+
+## Available agents
+
+When asked to review, plan, or build, reference the appropriate agent definition:
+
+- **Architecture:** Read `agents/architect.md` for system design approach
+- **Planning:** Read `agents/planner.md` for implementation planning
+- **Code review:** Read `agents/code-reviewer.md` for review checklist
+- **Security:** Read `agents/security-reviewer.md` for OWASP Top 10 checklist
+- **Bug hunting:** Read `agents/bug-auditor.md` for latent bug patterns
+- **Frontend:** Read `agents/fe-reviewer.md` for React/Vue/Angular checklist
+- **PHP/Laravel:** Read `agents/php-reviewer.md` for Laravel-specific checks
+- **Performance:** Read `agents/perf-checker.md` for N+1, unbounded fetch, etc.
+- **Testing:** Read `agents/test-runner.md` for test framework detection
+- **Incidents:** Read `agents/incident-commander.md` for triage protocol
+- **Migrations:** Read `agents/migration-architect.md` for expand/backfill/contract
+
+## Available skills
+
+For domain knowledge, read the relevant skill file:
+
+- `skills/architecture/SKILL.md` — system design patterns
+- `skills/security/SKILL.md` — OWASP cheat sheet, input validation
+- `skills/frontend/SKILL.md` — React hooks, accessibility, performance
+- `skills/php-laravel/SKILL.md` — Eloquent, middleware, queues
+- `skills/git-safety/SKILL.md` — safe git operations
+- `skills/quality-gate/SKILL.md` — review checklist and severity rubric
+
+## Contexts
+
+Load the appropriate mindset based on the task:
+
+- Building/fixing: Read `contexts/dev.md`
+- Reviewing code: Read `contexts/review.md`
+- Security work: Read `contexts/security.md`
+- Investigating: Read `contexts/research.md`
