@@ -6,7 +6,7 @@ Sidebar navigation, bordered layout, animations. Python stdlib only (curses).
 import curses
 import signal
 
-from tutorial_engine.content import PAGES, SECTIONS
+from tutorial_engine.content import ALL_TRACKS, TRACKS
 
 # ── Color pairs ────────────────────────────────────────
 
@@ -470,18 +470,87 @@ def render_too_small(win, rows, cols):
     win.refresh()
 
 
+# ── Track selector ────────────────────────────────────
+
+
+def render_track_selector(win, rows, cols, selected):
+    win.erase()
+    ba = curses.color_pair(BORDER)
+
+    safe_addch(win, 0, 0, curses.ACS_ULCORNER, ba)
+    safe_addch(win, 0, cols - 1, curses.ACS_URCORNER, ba)
+    safe_addch(win, rows - 1, 0, curses.ACS_LLCORNER, ba)
+    safe_addch(win, rows - 1, cols - 1, curses.ACS_LRCORNER, ba)
+    hline(win, 0, 1, cols - 1, ba)
+    hline(win, rows - 1, 1, cols - 1, ba)
+    vline(win, 0, 1, rows - 1, ba)
+    vline(win, cols - 1, 1, rows - 1, ba)
+
+    title = " paw tutorial library "
+    safe_addstr(win, 0, 3, title, curses.color_pair(CYAN) | curses.A_BOLD)
+
+    cx = max(4, (cols - 50) // 2)
+    cy = 3
+
+    safe_addstr(win, cy, cx, "Choose a tutorial track:", curses.color_pair(BOLD_WHITE))
+    cy += 2
+
+    for i, track in enumerate(TRACKS):
+        is_sel = i == selected
+        prefix = " ▸ " if is_sel else "   "
+        label = f"{prefix}{track['title']}"
+        desc = f"     {track['desc']}  ({track['time']})"
+
+        if is_sel:
+            attr = curses.color_pair(SIDEBAR_HL) | curses.A_BOLD
+            safe_addstr(win, cy, cx, f"{label:<46}", attr)
+        else:
+            safe_addstr(win, cy, cx, label, curses.A_BOLD)
+        cy += 1
+        safe_addstr(win, cy, cx, desc, curses.color_pair(CYAN))
+        cy += 2
+
+    hline(win, rows - 3, 1, cols - 1, ba)
+    safe_addch(win, rows - 3, 0, curses.ACS_LTEE, ba)
+    safe_addch(win, rows - 3, cols - 1, curses.ACS_RTEE, ba)
+
+    hints = "[up/down] Select   [enter] Start   [q] Quit"
+    safe_addstr(
+        win, rows - 2, center_x(hints, cols), hints, curses.color_pair(BOLD_WHITE)
+    )
+
+    win.refresh()
+
+
+def select_track(stdscr):
+    selected = 0
+    while True:
+        rows, cols = stdscr.getmaxyx()
+        if rows < MIN_ROWS or cols < MIN_COLS:
+            render_too_small(stdscr, rows, cols)
+            stdscr.getch()
+            continue
+        render_track_selector(stdscr, rows, cols, selected)
+        key = stdscr.getch()
+        if key == -1:
+            continue
+        if key in (curses.KEY_UP, ord("k")):
+            selected = max(0, selected - 1)
+        elif key in (curses.KEY_DOWN, ord("j")):
+            selected = min(len(TRACKS) - 1, selected + 1)
+        elif key in (10, ord(" "), curses.KEY_RIGHT):
+            return TRACKS[selected]["id"]
+        elif key == ord("q"):
+            return None
+    return None
+
+
 # ── Main loop ─────────────────────────────────────────
 
 
-def run(stdscr):
-    init_colors()
-    try:
-        curses.curs_set(0)
-    except curses.error:
-        pass
-    stdscr.timeout(100)
-
-    nav = Navigator(len(PAGES), SECTIONS, PAGES)
+def run_track(stdscr, track_id):
+    sections, pages = ALL_TRACKS[track_id]
+    nav = Navigator(len(pages), sections, pages)
     visited = set()
     resize_flag = [False]
 
@@ -505,7 +574,7 @@ def run(stdscr):
             render_too_small(stdscr, rows, cols)
             key = stdscr.getch()
             if key == ord("q"):
-                break
+                return "quit"
             continue
 
         page_changed = nav.page != last_page
@@ -516,7 +585,7 @@ def run(stdscr):
 
             animate = nav.page not in visited
             visited.add(nav.page)
-            render_content(stdscr, PAGES[nav.page], rows, cols, animate=animate)
+            render_content(stdscr, pages[nav.page], rows, cols, animate=animate)
             render_footer(stdscr, nav, rows, cols)
             stdscr.refresh()
             last_page = nav.page
@@ -527,11 +596,43 @@ def run(stdscr):
 
         action = nav.handle_key(key)
         if action == "quit":
-            break
+            return "quit"
         elif action == "end":
             render_finish_screen(stdscr, rows, cols)
+            return "menu"
+
+
+def run(stdscr):
+    init_colors()
+    try:
+        curses.curs_set(0)
+    except curses.error:
+        pass
+    stdscr.timeout(100)
+
+    while True:
+        track_id = select_track(stdscr)
+        if track_id is None:
+            break
+        result = run_track(stdscr, track_id)
+        if result == "quit":
             break
 
 
-def main():
-    curses.wrapper(run)
+def main(track_id=None):
+    if track_id and track_id in ALL_TRACKS:
+
+        def run_direct(stdscr):
+            init_colors()
+            try:
+                curses.curs_set(0)
+            except curses.error:
+                pass
+            stdscr.timeout(100)
+            result = run_track(stdscr, track_id)
+            if result == "menu":
+                run(stdscr)
+
+        curses.wrapper(run_direct)
+    else:
+        curses.wrapper(run)

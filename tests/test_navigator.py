@@ -7,9 +7,11 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from tutorial_engine.content import (  # noqa: E402
+    ALL_TRACKS,
     DISTINCTION_ART,
     PAGES,
     SECTIONS,
+    TRACKS,
 )
 from tutorial_engine.engine import (  # noqa: E402
     Navigator,
@@ -120,11 +122,11 @@ def test_navigator_skip_all_sections():
 
 
 def test_page_count():
-    assert len(PAGES) == 17
+    assert len(PAGES) == 10
 
 
 def test_section_count():
-    assert len(SECTIONS) == 7
+    assert len(SECTIONS) == 5
 
 
 def test_all_pages_have_required_keys():
@@ -202,3 +204,59 @@ def test_truncate_to_width():
     assert truncate_to_width("hello world", 5) == "hello"
     assert truncate_to_width("日本語", 4) == "日本"
     assert truncate_to_width("abc", 10) == "abc"
+
+
+# ── Multi-track tests ────────────────────────────────
+
+
+def test_all_tracks_exist():
+    assert len(TRACKS) == 5
+    track_ids = {t["id"] for t in TRACKS}
+    assert track_ids == {"learn", "start", "cli", "advanced", "practice"}
+
+
+def test_all_tracks_have_content():
+    for track in TRACKS:
+        tid = track["id"]
+        assert tid in ALL_TRACKS, f"Track {tid} missing from ALL_TRACKS"
+        sections, pages = ALL_TRACKS[tid]
+        assert len(pages) > 0, f"Track {tid} has no pages"
+        assert len(sections) > 0, f"Track {tid} has no sections"
+
+
+def test_all_track_pages_reference_valid_sections():
+    for tid, (sections, pages) in ALL_TRACKS.items():
+        for i, p in enumerate(pages):
+            sec = p["section"]
+            assert sec in sections, (
+                f"Track {tid} page {i} section '{sec}' not in sections"
+            )
+
+
+def test_all_track_body_lines_fit():
+    for tid, (_, pages) in ALL_TRACKS.items():
+        for i, p in enumerate(pages):
+            for j, line in enumerate(p.get("body", [])):
+                assert len(line) <= 60, (
+                    f"Track {tid} page {i} line {j}: {len(line)} chars"
+                )
+
+
+def test_all_track_art_fits():
+    for tid, (_, pages) in ALL_TRACKS.items():
+        for i, p in enumerate(pages):
+            for j, line in enumerate(p.get("art", [])):
+                assert len(line) <= 60, (
+                    f"Track {tid} page {i} art {j}: {len(line)} chars"
+                )
+
+
+def test_all_track_navigation():
+    for tid, (sections, pages) in ALL_TRACKS.items():
+        nav = Navigator(len(pages), sections, pages)
+        for _ in range(len(pages) - 1):
+            nav.handle_key(curses.KEY_RIGHT)
+        assert nav.page == len(pages) - 1, f"Track {tid} forward failed"
+        for _ in range(len(pages) - 1):
+            nav.handle_key(curses.KEY_LEFT)
+        assert nav.page == 0, f"Track {tid} backward failed"

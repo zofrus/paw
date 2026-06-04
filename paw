@@ -51,7 +51,21 @@ cmd_setup() {
 }
 
 cmd_tutorial() {
-    exec python3 "$PAW_DIR/tutorial"
+    for arg in "$@"; do
+        if [ "$arg" = "--web" ]; then
+            printf "${CYAN}Opening browser tutorial...${RESET}\n"
+            python3 -m http.server 8080 --directory "$PAW_DIR" &
+            local pid=$!
+            sleep 1
+            open "http://localhost:8080/tutorial.html" 2>/dev/null \
+                || xdg-open "http://localhost:8080/tutorial.html" 2>/dev/null \
+                || printf "Open http://localhost:8080/tutorial.html\n"
+            printf "${DIM}Press Ctrl+C to stop the server.${RESET}\n"
+            wait "$pid"
+            return
+        fi
+    done
+    exec python3 "$PAW_DIR/tutorial" "$@"
 }
 
 cmd_version() {

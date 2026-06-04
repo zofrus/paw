@@ -19,7 +19,11 @@ except ImportError:
 from tutorial_engine.engine import main
 
 if __name__ == "__main__":
+    track = None
+    for arg in sys.argv[1:]:
+        if arg in ("learn", "start", "cli", "advanced", "practice"):
+            track = arg
     try:
-        main()
+        main(track_id=track)
     except KeyboardInterrupt:
         pass

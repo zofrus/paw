@@ -1,5 +1,5 @@
 """
-All tutorial page content. Plain strings and ASCII art.
+paw tutorial content — multi-track tutorial library.
 Pages are dicts with: title, section, body (list of lines), art (optional).
 """
 
@@ -104,20 +104,6 @@ PERMISSIONS_ART = [
     r"  └─────────────────────────────────────────────────┘",
 ]
 
-DISTINCTION_ART = [
-    r"  ┌──────────┬──────────────┬──────────────┬──────────────┐",
-    r"  │          │   AGENTS     │   SKILLS     │   HOOKS      │",
-    r"  ├──────────┼──────────────┼──────────────┼──────────────┤",
-    r"  │ What     │ AI actors    │ Knowledge    │ Scripts      │",
-    r"  │ Has AI?  │ Yes          │ No (teaches) │ No (enforces)│",
-    r"  │ Decides? │ Yes-judgment │ No-informs   │ No-reacts    │",
-    r"  │ Runs     │ On dispatch  │ When loaded  │ On events    │",
-    r"  │ Can fail │ Yes (retry)  │ N/A          │ Yes (blocks) │",
-    r"  │ Count    │ 18           │ 7            │ 4            │",
-    r"  │ Lives in │ agents/      │ skills/      │ hooks/       │",
-    r"  └──────────┴──────────────┴──────────────┴──────────────┘",
-]
-
 HOOK_DEMO_ART = [
     r"  You type:  git rebase main                    ",
     r"                                                ",
@@ -133,25 +119,103 @@ HOOK_DEMO_ART = [
     r"  └────────────────────────────────────────────┘",
 ]
 
-# ── Pages ──────────────────────────────────────────────
+DISTINCTION_ART = [
+    r"  ┌──────────┬──────────────┬──────────────┬──────────────┐",
+    r"  │          │   AGENTS     │   SKILLS     │   HOOKS      │",
+    r"  ├──────────┼──────────────┼──────────────┼──────────────┤",
+    r"  │ What     │ AI actors    │ Knowledge    │ Scripts      │",
+    r"  │ Has AI?  │ Yes          │ No (teaches) │ No (enforces)│",
+    r"  │ Decides? │ Yes-judgment │ No-informs   │ No-reacts    │",
+    r"  │ Runs     │ On dispatch  │ When loaded  │ On events    │",
+    r"  │ Can fail │ Yes (retry)  │ N/A          │ Yes (blocks) │",
+    r"  │ Count    │ 18           │ 7            │ 4            │",
+    r"  │ Lives in │ agents/      │ skills/      │ hooks/       │",
+    r"  └──────────┴──────────────┴──────────────┴──────────────┘",
+]
 
-SECTIONS = [
+CLI_ART = [
+    r"  ┌────────────────────────────────────────────┐",
+    r"  │  $ paw <command>                           │",
+    r"  ├────────────────────────────────────────────┤",
+    r"  │  setup       install hooks + check reqs    │",
+    r"  │  tutorial    this TUI walkthrough           │",
+    r"  │  doctor      diagnose your install          │",
+    r"  │  init        scaffold .paw.json config     │",
+    r"  │  check       run quality gate              │",
+    r"  │  gate <name> run a single agent            │",
+    r"  │  agents      list all 18 agents            │",
+    r"  │  version     show version                  │",
+    r"  └────────────────────────────────────────────┘",
+]
+
+BUGGY_ART = [
+    r"  ┌────────────────────────────────────────────┐",
+    r"  │  examples/buggy-app/app.py                 │",
+    r"  ├────────────────────────────────────────────┤",
+    r"  │  6 security holes     (can you find them?) │",
+    r"  │  4 latent bugs        (race, off-by-one)   │",
+    r"  │  1 N+1 query          (perf)               │",
+    r"  │  0 tests              (oops)               │",
+    r"  │  0 input validation   (yikes)              │",
+    r"  └────────────────────────────────────────────┘",
+]
+
+# ── Track definitions ─────────────────────────────────
+
+TRACKS = [
+    {
+        "id": "learn",
+        "title": "Learn paw",
+        "desc": "What paw is, the 5 components, concepts",
+        "time": "~5 min",
+        "icon": "📖",
+    },
+    {
+        "id": "start",
+        "title": "Getting started",
+        "desc": "Install hooks, run agents, hands-on",
+        "time": "~5 min",
+        "icon": "🚀",
+    },
+    {
+        "id": "cli",
+        "title": "The paw CLI",
+        "desc": "Commands, presets, init, doctor",
+        "time": "~3 min",
+        "icon": "⌨",
+    },
+    {
+        "id": "advanced",
+        "title": "Advanced tactics",
+        "desc": "Workflows, team config, customization",
+        "time": "~4 min",
+        "icon": "⚙",
+    },
+    {
+        "id": "practice",
+        "title": "Practice with examples",
+        "desc": "Run agents against a buggy app",
+        "time": "~5 min",
+        "icon": "🐛",
+    },
+]
+
+# ── Track: Learn paw ──────────────────────────────────
+
+LEARN_SECTIONS = [
     "Welcome",
     "The Problem",
     "Components",
     "Agents",
     "Hooks & Rules",
-    "Getting Started",
-    "What's Next",
 ]
 
-PAGES = [
-    # ── Section 0: Welcome ─────────────────────────────
+LEARN_PAGES = [
     {
         "title": "Welcome to paw",
         "section": "Welcome",
         "art": PAW_LOGO,
-        "art_color": 1,  # cyan
+        "art_color": 1,
         "body": [
             "",
             "Personal Agent Workflows",
@@ -160,32 +224,11 @@ PAGES = [
             "Your AI agent writes code fast.",
             "paw makes sure it writes code right.",
             "",
-            "This tutorial walks you through how paw works",
-            "and how to start using it today.",
-            "",
-            "It takes about 5 minutes.",
+            "This track covers what paw is",
+            "and how it works.",
         ],
         "typewriter_title": True,
     },
-    {
-        "title": "What You'll Learn",
-        "section": "Welcome",
-        "body": [
-            "",
-            "  1.  Why your AI agent needs standards",
-            "",
-            "  2.  The 5 components of paw:",
-            "      agents, skills, hooks, rules, contexts",
-            "",
-            "  3.  How hooks block bad operations",
-            "",
-            "  4.  How to run review agents",
-            "",
-            "  5.  How to start using paw today",
-            "      (Claude Code, Cursor, or Codex CLI)",
-        ],
-    },
-    # ── Section 1: The Problem ─────────────────────────
     {
         "title": "The Problem",
         "section": "The Problem",
@@ -206,7 +249,7 @@ PAGES = [
             "  The AI did what you asked.",
             "  The problem is what you DIDN'T ask.",
         ],
-        "highlight": {"+": 2, "-": 3},  # green for +, yellow for -
+        "highlight": {"+": 2, "-": 3},
     },
     {
         "title": "Two Choices",
@@ -228,12 +271,11 @@ PAGES = [
             "  paw is Option B.",
         ],
     },
-    # ── Section 2: Components ──────────────────────────
     {
         "title": "How It All Fits Together",
         "section": "Components",
         "art": FLOW_ART,
-        "art_color": 1,  # cyan
+        "art_color": 1,
         "body": [
             "",
             "  5 layers, each works independently.",
@@ -242,32 +284,10 @@ PAGES = [
         ],
     },
     {
-        "title": "The Five Layers",
-        "section": "Components",
-        "body": [
-            "",
-            "  AGENTS     18 specialized roles, scoped permissions",
-            "             Most can only READ your code.",
-            "",
-            "  SKILLS     7 domain knowledge bundles",
-            "             Architecture, security, frontend, PHP...",
-            "",
-            "  RULES      6 doctrine pages -- source of truth",
-            "             If rule contradicts agent, fix the agent.",
-            "",
-            "  HOOKS      4 enforcement triggers",
-            "             Fire on Claude Code events. Hard stops.",
-            "",
-            "  CONTEXTS   4 mindset modes",
-            "             dev, review, security, research",
-        ],
-    },
-    {
         "title": "The Key Distinction",
         "section": "Components",
         "art": DISTINCTION_ART,
-        "art_color": 3,  # yellow (default for borders)
-        # Row colors: borders=yellow, header=cyan, data alternates green/magenta
+        "art_color": 3,
         "art_row_colors": [3, 1, 3, 2, 4, 2, 4, 2, 4, 2, 3],
         "body": [
             "",
@@ -300,12 +320,9 @@ PAGES = [
             "  TOOLS     What actions it can take",
             "",
             "  paw's agents are markdown files that",
-            "  define all six of these. That's it.",
-            "  No magic. No framework. Just a scoped",
-            "  LLM with a clear job description.",
+            "  define all six. No magic.",
         ],
     },
-    # ── Section 3: Agents ──────────────────────────────
     {
         "title": "18 Agents, 5 Phases",
         "section": "Agents",
@@ -321,42 +338,19 @@ PAGES = [
         "title": "Trust Through Structural Limitation",
         "section": "Agents",
         "art": PERMISSIONS_ART,
-        "art_color": 4,  # magenta
+        "art_color": 4,
         "body": [
             "",
-            "  The security-reviewer CANNOT modify your code.",
+            "  The security-reviewer CANNOT modify code.",
             "  The test-runner CANNOT edit source files.",
-            "  The builder has full power -- but it's the only one.",
+            "  Only 4 of 18 get full access.",
         ],
     },
-    {
-        "title": "Using Agents",
-        "section": "Agents",
-        "body": [
-            "",
-            "  Ask by name in any AI coding tool:",
-            "",
-            "  Claude Code / Codex CLI:",
-            "    > Use the architect agent to design",
-            "      a solution for password reset.",
-            "",
-            "  Cursor:",
-            "    Add agents as @docs or custom rules.",
-            "    Reference them in your prompts.",
-            "",
-            "  All tools:",
-            "    > Use code-reviewer, bug-auditor, and",
-            "      security-reviewer on the current diff.",
-            "",
-            "  Three perspectives. Different catches.",
-        ],
-    },
-    # ── Section 4: Hooks & Rules ───────────────────────
     {
         "title": "Hooks: Mechanical Enforcement",
         "section": "Hooks & Rules",
         "art": HOOK_DEMO_ART,
-        "art_color": 3,  # yellow
+        "art_color": 3,
         "body": [
             "",
             "  Hooks fire on Claude Code lifecycle events.",
@@ -365,34 +359,13 @@ PAGES = [
         ],
     },
     {
-        "title": "The Four Hooks",
-        "section": "Hooks & Rules",
-        "body": [
-            "",
-            "  git_safety.py        (PreToolUse)",
-            "    Blocks rebase, force-push, reset --hard",
-            "",
-            "  branch_guard.py      (PreToolUse)",
-            "    Blocks commits on main/master/develop",
-            "",
-            "  auto_test_detect.sh  (PostToolUse)",
-            "    Warns when source file has no test",
-            "",
-            "  _lib.py              (Shared helpers)",
-            "    read_payload, emit, find_project_root",
-            "",
-            "  Each hook is pipe-testable standalone.",
-            "  Wire them into ~/.claude/settings.json.",
-        ],
-    },
-    {
         "title": "Rules: Standards as Doctrine",
         "section": "Hooks & Rules",
         "body": [
             "",
             "  6 rules. Each is a markdown file.",
-            "  Anyone can read them. Anyone can propose changes.",
-            "  But they're enforced, not suggested.",
+            "  Anyone can read them. Anyone can propose",
+            "  changes. But they're enforced, not suggested.",
             "",
             "  git-doctrine       Always merge, never rebase",
             "  test-first         Tests before code, always",
@@ -404,10 +377,21 @@ PAGES = [
             "  Rule --> Agent enforces --> Hook blocks",
         ],
     },
-    # ── Section 5: Getting Started ─────────────────────
+]
+
+# ── Track: Getting started ────────────────────────────
+
+START_SECTIONS = [
+    "Setup",
+    "Try Hooks",
+    "Try Agents",
+    "What's Next",
+]
+
+START_PAGES = [
     {
         "title": "Install in 2 Minutes",
-        "section": "Getting Started",
+        "section": "Setup",
         "body": [
             "",
             "  Step 1: Clone paw (anywhere you want)",
@@ -417,11 +401,11 @@ PAGES = [
             "",
             "  Step 2: Run setup",
             "",
-            "    ./setup",
+            "    ./paw setup",
             "",
             "  That's it. Setup:",
-            "    - Checks Python, git, terminal, Claude Code",
-            "    - Installs hooks with the correct paths",
+            "    - Checks Python, git, terminal",
+            "    - Installs hooks with correct paths",
             "    - Backs up your settings first",
             "    - Verifies everything works",
             "",
@@ -430,52 +414,461 @@ PAGES = [
         ],
     },
     {
-        "title": "Try It Right Now",
-        "section": "Getting Started",
+        "title": "Test the Hooks",
+        "section": "Try Hooks",
+        "art": HOOK_DEMO_ART,
+        "art_color": 3,
         "body": [
             "",
-            "  After installing, open Claude Code and try:",
+            "  Open Claude Code and type:",
             "",
             "    > run git rebase main",
             "",
-            "  You'll see:",
+            "  It will be BLOCKED with an explanation.",
+            "  The command never executes.",
+        ],
+    },
+    {
+        "title": "More Hook Tests",
+        "section": "Try Hooks",
+        "body": [
             "",
-            "    BLOCKED",
-            '    "git rebase rewrites published history.',
-            '     Use git pull origin <branch> instead."',
+            "  Try these too:",
             "",
-            "  Then try running a review agent:",
+            "  > run git push --force origin main",
+            "    BLOCKED -- overwrites remote history",
+            "",
+            "  > run git reset --hard HEAD~1",
+            "    BLOCKED -- discards uncommitted work",
+            "",
+            "  > run git commit -m 'test'   (on main)",
+            "    BLOCKED -- create a feature branch",
+            "",
+            "  > run git push --force-with-lease origin feat",
+            "    ALLOWED -- safe alternative to --force",
+        ],
+    },
+    {
+        "title": "Run a Review Agent",
+        "section": "Try Agents",
+        "body": [
+            "",
+            "  Make sure you have a diff (any changes).",
+            "  Then type in Claude Code:",
             "",
             "    > Use the code-reviewer agent on the",
             "      current diff.",
             "",
-            "  See what it finds that you wouldn't have.",
+            "  Look at the findings. Ask yourself:",
+            "    - Did it catch anything you'd catch?",
+            "    - Did it catch anything you WOULDN'T?",
+            "    - Are the severity levels honest?",
         ],
     },
-    # ── Section 6: What's Next ─────────────────────────
+    {
+        "title": "Stack Multiple Reviewers",
+        "section": "Try Agents",
+        "body": [
+            "",
+            "  Now run all three:",
+            "",
+            "    > Use the code-reviewer, bug-auditor,",
+            "      and security-reviewer agents on the",
+            "      current diff.",
+            "",
+            "  Or use the paw CLI:",
+            "",
+            "    $ paw check",
+            "",
+            "  Three independent perspectives.",
+            "  Each catches different things.",
+            "  No single reviewer covers all dimensions.",
+        ],
+    },
     {
         "title": "What's Next",
         "section": "What's Next",
         "art": ROCKET_ART,
-        "art_color": 2,  # green
+        "art_color": 2,
         "body": [
             "",
-            "  TODAY:  Install hooks. Try an agent.",
+            "  TODAY:  Keep the hooks on. Run an agent.",
             "",
-            "  THIS WEEK:  Run 3 reviewers on a PR.",
-            "    code-reviewer + bug-auditor + security",
+            "  THIS WEEK:  paw check on your next PR.",
             "",
-            "  NEXT WEEK:  Full workflow.",
+            "  NEXT WEEK:  Try the full workflow.",
             "    architect -> planner -> devils-advocate",
             "    -> builder -> code-reviewer",
             "",
-            "  WHEN READY:  Graduate to forge.",
-            "    46 agents, 15 parallel gates.",
-            "",
-            "  Works with: Claude Code, Cursor, Codex CLI",
-            "",
-            "  Press -> for a detailed info screen.",
+            "  Run the CLI track to learn paw commands.",
+            "  Run the Practice track to try the buggy app.",
         ],
         "typewriter_title": True,
     },
 ]
+
+# ── Track: The paw CLI ────────────────────────────────
+
+CLI_SECTIONS = [
+    "Overview",
+    "Quality Gates",
+    "Config & Health",
+]
+
+CLI_PAGES = [
+    {
+        "title": "The paw CLI",
+        "section": "Overview",
+        "art": CLI_ART,
+        "art_color": 1,
+        "body": [
+            "",
+            "  One command for everything.",
+            "  Tab-completable. No memorizing prompts.",
+        ],
+    },
+    {
+        "title": "Quality Gate Presets",
+        "section": "Quality Gates",
+        "body": [
+            "",
+            "  Three presets for different situations:",
+            "",
+            "  paw check --quick",
+            "    code-reviewer only. Fast feedback.",
+            "",
+            "  paw check",
+            "    code + bugs + security. The default.",
+            "    Use before requesting code review.",
+            "",
+            "  paw check --thorough",
+            "    All 8 reviewers. Before merging big",
+            "    features or security-sensitive code.",
+        ],
+    },
+    {
+        "title": "Single Gates & Agent List",
+        "section": "Quality Gates",
+        "body": [
+            "",
+            "  Run a single agent:",
+            "",
+            "    paw gate security",
+            "    paw gate bugs",
+            "    paw gate perf",
+            "    paw gate frontend",
+            "    paw gate php",
+            "    paw gate tests",
+            "    paw gate docs",
+            "    paw gate env",
+            "",
+            "  List all agents:",
+            "",
+            "    paw agents",
+        ],
+    },
+    {
+        "title": "paw init — Team Config",
+        "section": "Config & Health",
+        "body": [
+            "",
+            "  Scaffold a config for your project:",
+            "",
+            "    paw init",
+            "",
+            "  Creates .paw.json with:",
+            "    - agents.enabled -- which agents run",
+            "    - agents.disabled -- which to skip",
+            "    - quality_gate.default_preset",
+            "    - history settings",
+            "",
+            "  Check .paw.json into version control.",
+            "  Your whole team shares the config.",
+        ],
+    },
+    {
+        "title": "paw doctor — Diagnose Issues",
+        "section": "Config & Health",
+        "body": [
+            "",
+            "  Something broken? Run:",
+            "",
+            "    paw doctor",
+            "",
+            "  Checks:",
+            "    - Python version and curses module",
+            "    - Hook files exist and are executable",
+            "    - Hooks installed in settings.json",
+            "    - All 18 agent files present",
+            "    - Hook self-test (actually blocks)",
+            "    - Test suite passes",
+            "",
+            "  Tells you exactly what's wrong",
+            "  and how to fix it.",
+        ],
+    },
+]
+
+# ── Track: Advanced tactics ───────────────────────────
+
+ADVANCED_SECTIONS = [
+    "Workflows",
+    "Customizing",
+    "Scaling Up",
+]
+
+ADVANCED_PAGES = [
+    {
+        "title": "The Full Workflow",
+        "section": "Workflows",
+        "body": [
+            "",
+            "  Plan -> Critique -> Build -> Review",
+            "",
+            "  1. Use the architect agent to design",
+            "     a solution for [your task].",
+            "",
+            "  2. Use the planner agent to turn the",
+            "     architecture into a plan.",
+            "",
+            "  3. Use the devils-advocate agent to",
+            "     critique the plan.",
+            "",
+            "  4. Use the builder agent to implement.",
+            "",
+            "  5. Use the code-reviewer agent on",
+            "     the changes.",
+            "",
+            "  The devil's advocate attacks the plan",
+            "  BEFORE any code is written.",
+        ],
+    },
+    {
+        "title": "Incident Response",
+        "section": "Workflows",
+        "body": [
+            "",
+            "  Production fire? Use the workflow:",
+            "",
+            "  1. Use the incident-commander agent.",
+            "     Stop bleeding > root cause > prevent.",
+            "",
+            "  2. Use the rollback-planner agent.",
+            "     Every fix needs a way back.",
+            "",
+            "  3. Use the environment-checker agent.",
+            "     Verify the fix actually worked.",
+            "",
+            "  The incident-commander loads the",
+            "  security context -- adversarial mindset,",
+            "  assume worst case.",
+        ],
+    },
+    {
+        "title": "Adding Your Own Rule",
+        "section": "Customizing",
+        "body": [
+            "",
+            "  Create rules/your-rule.md:",
+            "",
+            "  # Your Rule Name",
+            "",
+            "  **Statement:** One sentence.",
+            "",
+            "  **Why:** Why this matters.",
+            "",
+            "  ## Hard rules",
+            "  - ...",
+            "",
+            "  **Enforced by:** which agent checks it.",
+            "",
+            "  Then reference it in the agent's Rules",
+            "  section. The rule is now enforced.",
+        ],
+    },
+    {
+        "title": "Adding Your Own Agent",
+        "section": "Customizing",
+        "body": [
+            "",
+            "  Create agents/your-agent.md:",
+            "",
+            "  ---",
+            "  name: your-agent",
+            "  description: What it does.",
+            "  model: sonnet",
+            "  tools: Read, Grep, Glob",
+            "  ---",
+            "",
+            "  Then add:",
+            "    Role, Context, Rules, Process,",
+            "    Failure modes, Done when.",
+            "",
+            "  Most agents are read-only.",
+            "  Only grant write/bash when needed.",
+        ],
+    },
+    {
+        "title": "paw to forge",
+        "section": "Scaling Up",
+        "art": ROCKET_ART,
+        "art_color": 2,
+        "body": [
+            "",
+            "  paw                    forge",
+            "  18 agents              46 agents",
+            "  Manual invocation      16-phase pipeline",
+            "  You sequence work      Orchestrator does",
+            "  You run reviews        15 gates parallel",
+            "  4 hooks                8 + self-healing",
+            "  6 rules                21 doctrine pages",
+            "",
+            "  Start with paw.",
+            "  Graduate to forge when you're ready.",
+        ],
+    },
+]
+
+# ── Track: Practice with examples ─────────────────────
+
+PRACTICE_SECTIONS = [
+    "The Buggy App",
+    "Run Agents",
+    "Results",
+]
+
+PRACTICE_PAGES = [
+    {
+        "title": "Meet the Buggy App",
+        "section": "The Buggy App",
+        "art": BUGGY_ART,
+        "art_color": 3,
+        "body": [
+            "",
+            "  examples/buggy-app/app.py is a",
+            "  deliberately broken Python app.",
+            "",
+            "  Your mission: run paw's review agents",
+            "  and see how many issues they find.",
+            "",
+            "  Don't read the README spoilers yet.",
+        ],
+    },
+    {
+        "title": "What to Look For",
+        "section": "The Buggy App",
+        "body": [
+            "",
+            "  The app has problems in every category:",
+            "",
+            "  SECURITY   Hardcoded secrets, injection,",
+            "             plaintext passwords in logs",
+            "",
+            "  BUGS       Off-by-one, race condition,",
+            "             bare except that swallows errors",
+            "",
+            "  PERF       N+1 query in a loop",
+            "",
+            "  QUALITY    Zero tests, no input validation,",
+            "             no error handling on DB connection",
+            "",
+            "  How many can the agents find?",
+        ],
+    },
+    {
+        "title": "Run the Security Reviewer",
+        "section": "Run Agents",
+        "body": [
+            "",
+            "  Start with security:",
+            "",
+            "    > Use the security-reviewer agent on",
+            "      examples/buggy-app/",
+            "",
+            "  Or: paw gate security",
+            "  (then point it at the buggy app)",
+            "",
+            "  Look for: OWASP categories, severity",
+            "  levels, exploit paths.",
+            "",
+            "  How many of the 6 security holes",
+            "  does it find?",
+        ],
+    },
+    {
+        "title": "Run the Bug Auditor",
+        "section": "Run Agents",
+        "body": [
+            "",
+            "  Now bugs:",
+            "",
+            "    > Use the bug-auditor agent on",
+            "      examples/buggy-app/",
+            "",
+            "  Or: paw gate bugs",
+            "",
+            "  Look for: reproduction scenarios,",
+            "  the checklist categories (off-by-one,",
+            "  race condition, bare except, etc.)",
+            "",
+            "  How many of the 4 bugs does it find?",
+        ],
+    },
+    {
+        "title": "Run the Perf Checker",
+        "section": "Run Agents",
+        "body": [
+            "",
+            "  Performance:",
+            "",
+            "    > Use the perf-checker agent on",
+            "      examples/buggy-app/",
+            "",
+            "  Or: paw gate perf",
+            "",
+            "  Look for: the N+1 query pattern.",
+            "  Does it explain WHY it's a problem",
+            "  at scale?",
+            "",
+            "  Good findings include scale impact:",
+            '  "fine at 100, breaks at 100K"',
+        ],
+    },
+    {
+        "title": "Check Your Results",
+        "section": "Results",
+        "body": [
+            "",
+            "  Open examples/buggy-app/README.md",
+            "  and click the spoiler tag.",
+            "",
+            "  Compare what the agents found vs",
+            "  the full list of issues.",
+            "",
+            "  Questions to consider:",
+            "",
+            "  - Did each agent stay in its lane?",
+            "    (security didn't report perf issues?)",
+            "  - Were severity levels accurate?",
+            "  - Would you have caught all of these",
+            "    in a manual review?",
+            "",
+            "  Now try: paw check --thorough",
+        ],
+    },
+]
+
+# ── Default export (learn track) for backwards compat ─
+
+SECTIONS = LEARN_SECTIONS
+PAGES = LEARN_PAGES
+
+# ── All tracks registry ───────────────────────────────
+
+ALL_TRACKS = {
+    "learn": (LEARN_SECTIONS, LEARN_PAGES),
+    "start": (START_SECTIONS, START_PAGES),
+    "cli": (CLI_SECTIONS, CLI_PAGES),
+    "advanced": (ADVANCED_SECTIONS, ADVANCED_PAGES),
+    "practice": (PRACTICE_SECTIONS, PRACTICE_PAGES),
+}
