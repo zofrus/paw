@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Block dangerous git operations. PreToolUse hook, matcher: Bash."""
-import re, sys, os
+
+import re
+import sys
+import os
 
 sys.path.insert(0, os.path.dirname(__file__))
 from _lib import read_payload, emit

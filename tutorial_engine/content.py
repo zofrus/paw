@@ -170,7 +170,6 @@ PAGES = [
             "      (Claude Code, Cursor, or Codex CLI)",
         ],
     },
-
     # ── Section 1: The Problem ─────────────────────────
     {
         "title": "The Problem",
@@ -214,7 +213,6 @@ PAGES = [
             "  paw is Option B.",
         ],
     },
-
     # ── Section 2: Components ──────────────────────────
     {
         "title": "How It All Fits Together",
@@ -249,7 +247,6 @@ PAGES = [
             "             dev, review, security, research",
         ],
     },
-
     # ── Section 3: Agents ──────────────────────────────
     {
         "title": "18 Agents, 5 Phases",
@@ -282,21 +279,20 @@ PAGES = [
             "  Ask by name in any AI coding tool:",
             "",
             "  Claude Code / Codex CLI:",
-            '    > Use the architect agent to design',
-            '      a solution for password reset.',
+            "    > Use the architect agent to design",
+            "      a solution for password reset.",
             "",
             "  Cursor:",
-            '    Add agents as @docs or custom rules.',
-            '    Reference them in your prompts.',
+            "    Add agents as @docs or custom rules.",
+            "    Reference them in your prompts.",
             "",
             "  All tools:",
-            '    > Use code-reviewer, bug-auditor, and',
-            '      security-reviewer on the current diff.',
+            "    > Use code-reviewer, bug-auditor, and",
+            "      security-reviewer on the current diff.",
             "",
             "  Three perspectives. Different catches.",
         ],
     },
-
     # ── Section 4: Hooks & Rules ───────────────────────
     {
         "title": "Hooks: Mechanical Enforcement",
@@ -350,7 +346,6 @@ PAGES = [
             "  Rule --> Agent enforces --> Hook blocks",
         ],
     },
-
     # ── Section 5: Getting Started ─────────────────────
     {
         "title": "Install in 2 Minutes",
@@ -383,23 +378,22 @@ PAGES = [
             "",
             "  After installing, open Claude Code and try:",
             "",
-            '    > run git rebase main',
+            "    > run git rebase main",
             "",
             "  You'll see:",
             "",
-            '    BLOCKED',
+            "    BLOCKED",
             '    "git rebase rewrites published history.',
             '     Use git pull origin <branch> instead."',
             "",
             "  Then try running a review agent:",
             "",
-            '    > Use the code-reviewer agent on the',
-            '      current diff.',
+            "    > Use the code-reviewer agent on the",
+            "      current diff.",
             "",
             "  See what it finds that you wouldn't have.",
         ],
     },
-
     # ── Section 6: What's Next ─────────────────────────
     {
         "title": "What's Next",

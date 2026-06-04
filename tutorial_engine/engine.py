@@ -2,6 +2,7 @@
 paw tutorial TUI engine.
 Sidebar navigation, bordered layout, animations. Python stdlib only (curses).
 """
+
 import curses
 import signal
 
@@ -34,6 +35,7 @@ def init_colors():
 
 
 # ── Safe drawing ──────────────────────────────────────
+
 
 def safe_addstr(win, y, x, text, attr=0):
     h, w = win.getmaxyx()
@@ -81,6 +83,7 @@ MIN_ROWS = 24
 
 # ── Border + Frame ────────────────────────────────────
 
+
 def draw_frame(win, rows, cols):
     ba = curses.color_pair(BORDER)
 
@@ -113,6 +116,7 @@ def draw_frame(win, rows, cols):
 
 # ── Sidebar ───────────────────────────────────────────
 
+
 def draw_sidebar(win, nav, rows):
     sx = 2
     sy = 2
@@ -131,7 +135,7 @@ def draw_sidebar(win, nav, rows):
         if sy + i >= rows - 4:
             break
 
-        is_current = (sec == current_sec)
+        is_current = sec == current_sec
         sec_start = nav.section_starts.get(sec, 0)
         is_done = nav.page > sec_start and not is_current
 
@@ -156,6 +160,7 @@ def draw_sidebar(win, nav, rows):
 
 
 # ── Effects ───────────────────────────────────────────
+
 
 def typewriter(win, y, x, text, attr=0, delay_ms=25):
     for i in range(len(text)):
@@ -197,6 +202,7 @@ def cascade_lines(win, y, x, lines, attr=0, delay_ms=20):
 
 
 # ── Navigation ────────────────────────────────────────
+
 
 class Navigator:
     def __init__(self, total_pages, sections, pages):
@@ -246,6 +252,7 @@ class Navigator:
 
 
 # ── Content Renderer ──────────────────────────────────
+
 
 def render_content(win, page, rows, cols, animate=False):
     content_x = SIDEBAR_W + 3
@@ -308,6 +315,7 @@ def render_content(win, page, rows, cols, animate=False):
 
 # ── Footer ────────────────────────────────────────────
 
+
 def render_footer(win, nav, rows, cols):
     fy = rows - 2
     hints = "[</>] Navigate  [s] Skip  [q] Quit"
@@ -315,11 +323,17 @@ def render_footer(win, nav, rows, cols):
 
     pct = int((nav.page + 1) / nav.total * 100)
     progress = f"{pct}%"
-    safe_addstr(win, fy, cols - len(progress) - 3, progress,
-                curses.color_pair(CYAN) | curses.A_BOLD)
+    safe_addstr(
+        win,
+        fy,
+        cols - len(progress) - 3,
+        progress,
+        curses.color_pair(CYAN) | curses.A_BOLD,
+    )
 
 
 # ── Post-tutorial info screen ─────────────────────────
+
 
 def render_finish_screen(win, rows, cols):
     win.erase()
@@ -348,7 +362,7 @@ def render_finish_screen(win, rows, cols):
         ("Open Claude Code (or Cursor, or Codex CLI) and try:", 0, False),
         ("", 0, False),
         ("  1. Test the hooks:", BOLD_WHITE, False),
-        ('     Type: git rebase main', YELLOW, False),
+        ("     Type: git rebase main", YELLOW, False),
         ("     It will be blocked with an explanation.", 0, False),
         ("", 0, False),
         ("  2. Run a review agent:", BOLD_WHITE, False),
@@ -379,8 +393,9 @@ def render_finish_screen(win, rows, cols):
         safe_addstr(win, cy + i, cx, text, attr)
 
     footer = "Press any key to exit"
-    safe_addstr(win, rows - 2, center_x(footer, cols), footer,
-                curses.color_pair(BOLD_WHITE))
+    safe_addstr(
+        win, rows - 2, center_x(footer, cols), footer, curses.color_pair(BOLD_WHITE)
+    )
 
     win.refresh()
     win.timeout(-1)
@@ -388,6 +403,7 @@ def render_finish_screen(win, rows, cols):
 
 
 # ── Too-small screen ──────────────────────────────────
+
 
 def render_too_small(win, rows, cols):
     win.erase()
@@ -401,12 +417,18 @@ def render_too_small(win, rows, cols):
     cy = max(0, rows // 2 - 2)
     for i, msg in enumerate(messages):
         if msg:
-            safe_addstr(win, cy + i, center_x(msg, cols), msg,
-                        curses.color_pair(YELLOW) | curses.A_BOLD)
+            safe_addstr(
+                win,
+                cy + i,
+                center_x(msg, cols),
+                msg,
+                curses.color_pair(YELLOW) | curses.A_BOLD,
+            )
     win.refresh()
 
 
 # ── Main loop ─────────────────────────────────────────
+
 
 def run(stdscr):
     init_colors()

@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """paw hook helpers."""
-import json, sys, os
+
+import json
+import sys
+import os
 
 
 def read_payload():

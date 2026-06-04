@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Block commits on protected branches. PreToolUse hook, matcher: Bash."""
-import re, subprocess, sys, os
+
+import re
+import subprocess
+import sys
+import os
 
 sys.path.insert(0, os.path.dirname(__file__))
 from _lib import read_payload, emit
