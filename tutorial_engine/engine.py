@@ -419,9 +419,9 @@ def render_finish_screen(win, rows, cols):
         ("", 0, False),
         ("WHERE TO LEARN MORE", CYAN, True),
         ("", 0, False),
-        ("  Agents:   ~/.paw/agents/README.md", 0, False),
-        ("  Hooks:    ~/.paw/hooks/README.md", 0, False),
-        ("  Rules:    ~/.paw/rules/README.md", 0, False),
+        ("  Agents:   agents/README.md", 0, False),
+        ("  Hooks:    hooks/README.md", 0, False),
+        ("  Rules:    rules/README.md", 0, False),
         ("  Full kit: github.com/zofrus/forge", 0, False),
     ]
 

@@ -12,7 +12,9 @@ Four hooks plus shared helpers and an installer. Each hook fires on a Claude Cod
 
 ## Install
 
-Add to `~/.claude/settings.json`:
+**Recommended:** Run `./setup` from the paw repo root. It detects the install path and writes the correct absolute paths to your settings.
+
+**Manual install:** Add to `~/.claude/settings.json`, replacing `/path/to/paw` with your actual clone location:
 
 ```json
 {
@@ -21,8 +23,8 @@ Add to `~/.claude/settings.json`:
       {
         "matcher": "Bash",
         "hooks": [
-          { "type": "command", "command": "python3 ~/.paw/hooks/git_safety.py" },
-          { "type": "command", "command": "python3 ~/.paw/hooks/branch_guard.py" }
+          { "type": "command", "command": "python3 /path/to/paw/hooks/git_safety.py" },
+          { "type": "command", "command": "python3 /path/to/paw/hooks/branch_guard.py" }
         ]
       }
     ],
@@ -30,7 +32,7 @@ Add to `~/.claude/settings.json`:
       {
         "matcher": "Write|Edit",
         "hooks": [
-          { "type": "command", "command": "bash ~/.paw/hooks/auto_test_detect.sh" }
+          { "type": "command", "command": "bash /path/to/paw/hooks/auto_test_detect.sh" }
         ]
       }
     ]

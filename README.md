@@ -91,10 +91,13 @@ paw/
 ### 1. Clone and run setup
 
 ```bash
-git clone https://github.com/zofrus/paw.git ~/.paw
-cd ~/.paw
+# Clone anywhere you want — paw detects its own location at runtime
+git clone https://github.com/zofrus/paw.git ~/paw
+cd ~/paw
 ./setup
 ```
+
+Clone to any path — `~/paw`, `~/tools/paw`, your projects directory, wherever. The setup script detects its own location and writes the correct absolute paths to your Claude Code settings. No hardcoded paths.
 
 Setup checks everything you need (Python 3.10+, curses, git, terminal size, Claude Code) and walks you through installing hooks. If anything's missing, it tells you exactly how to fix it for your platform. It backs up your Claude Code settings before touching them.
 
@@ -107,7 +110,7 @@ Setup checks everything you need (Python 3.10+, curses, git, terminal size, Clau
 ```
   ┌──────────────────────────────────────────────────────┐
   │                                                      │
-  │   15 pages  ·  7 sections  ·  ~5 minutes             │
+  │   17 pages  ·  7 sections  ·  ~5 minutes             │
   │                                                      │
   │   [</>] Navigate   [s] Skip section   [q] Quit       │
   │                                                      │
@@ -127,12 +130,12 @@ Animations are interruptible — any keypress during a typewriter or slide-in ef
 ### Option 1: Run setup (recommended)
 
 ```bash
-git clone https://github.com/zofrus/paw.git ~/.paw
-cd ~/.paw
+git clone https://github.com/zofrus/paw.git ~/paw
+cd ~/paw
 ./setup
 ```
 
-Setup checks requirements, installs hooks, and verifies everything works. If you want to install hooks manually instead, see `hooks/README.md`.
+Setup checks requirements, installs hooks (using the actual clone path, not a hardcoded one), and verifies everything works. If you want to install hooks manually instead, see `hooks/README.md`.
 
 ### Option 2: Agents on demand (10 minutes)
 
