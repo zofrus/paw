@@ -265,7 +265,9 @@ PAGES = [
         "title": "The Key Distinction",
         "section": "Components",
         "art": DISTINCTION_ART,
-        "art_color": 3,  # yellow
+        "art_color": 3,  # yellow (default for borders)
+        # Per-row colors: borders=yellow(3), header=cyan(1), data rows alternate green(2)/magenta(4)
+        "art_row_colors": [3, 1, 3, 2, 4, 2, 4, 2, 4, 2, 3],
         "body": [
             "",
             "  Agents without skills are smart but",

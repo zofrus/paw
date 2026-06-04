@@ -319,7 +319,17 @@ def render_content(win, page, rows, cols, animate=False):
     if art:
         cur_y += 1
         art_attr = curses.color_pair(art_color) if art_color else 0
-        if animate:
+        row_colors = page.get("art_row_colors")
+
+        if row_colors:
+            for i, line in enumerate(art):
+                rc = row_colors[i] if i < len(row_colors) else art_color
+                attr = curses.color_pair(rc) if rc else art_attr
+                safe_addstr(win, cur_y + i, content_x, line, attr)
+            if animate:
+                win.refresh()
+                curses.napms(80)
+        elif animate:
             if slide_in_lines(win, cur_y, content_x, art, art_attr, delay_ms=25):
                 animate = False
         else:
