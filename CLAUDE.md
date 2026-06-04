@@ -1,4 +1,4 @@
-# paw — AI SDLC starter kit
+# paw — Personal Agent Workflows
 
 ## What paw is
 

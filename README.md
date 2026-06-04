@@ -1,4 +1,4 @@
-# paw
+# paw — Personal Agent Workflows
 
 ```
         _______________
@@ -15,6 +15,7 @@
         🐾   🐾   🐾
 
      p a w
+     Personal Agent Workflows
      an AI SDLC starter kit
 ```
 

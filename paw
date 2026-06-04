@@ -1,0 +1,355 @@
+#!/usr/bin/env bash
+# paw — AI SDLC starter kit CLI
+# Usage: paw <command> [args]
+
+set -euo pipefail
+
+PAW_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# ── Colors ─────────────────────────────────────────────
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+DIM='\033[2m'
+RESET='\033[0m'
+
+# ── Help ───────────────────────────────────────────────
+
+show_help() {
+    printf "${CYAN}${BOLD}paw${RESET} — Personal Agent Workflows — an AI SDLC starter kit\n\n"
+    printf "${BOLD}Usage:${RESET} paw <command> [args]\n\n"
+    printf "${BOLD}Commands:${RESET}\n"
+    printf "  ${CYAN}setup${RESET}          Check requirements and install hooks\n"
+    printf "  ${CYAN}tutorial${RESET}       Run the interactive TUI walkthrough\n"
+    printf "  ${CYAN}doctor${RESET}         Diagnose problems with your paw install\n"
+    printf "  ${CYAN}init${RESET}           Scaffold .paw.json config into a project\n"
+    printf "  ${CYAN}check${RESET}          Run standard quality gate (3 reviewers)\n"
+    printf "  ${CYAN}gate${RESET} <name>    Run a single review agent\n"
+    printf "  ${CYAN}agents${RESET}         List all available agents\n"
+    printf "  ${CYAN}version${RESET}        Show paw version\n"
+    printf "  ${CYAN}help${RESET}           Show this help\n"
+    printf "\n${BOLD}Quality gate presets:${RESET}\n"
+    printf "  ${CYAN}paw check${RESET}              Standard (code + bugs + security)\n"
+    printf "  ${CYAN}paw check --quick${RESET}      Quick (code-reviewer only)\n"
+    printf "  ${CYAN}paw check --thorough${RESET}   Thorough (all 8 reviewers)\n"
+    printf "\n${BOLD}Single agent:${RESET}\n"
+    printf "  ${CYAN}paw gate security${RESET}      Run security-reviewer\n"
+    printf "  ${CYAN}paw gate bugs${RESET}          Run bug-auditor\n"
+    printf "  ${CYAN}paw gate perf${RESET}          Run perf-checker\n"
+    printf "  ${CYAN}paw gate frontend${RESET}      Run fe-reviewer\n"
+    printf "  ${CYAN}paw gate php${RESET}           Run php-reviewer\n"
+    printf "\n${DIM}paw v$(cat "$PAW_DIR/pyproject.toml" | grep 'version' | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')${RESET}\n"
+}
+
+# ── Commands ───────────────────────────────────────────
+
+cmd_setup() {
+    exec "$PAW_DIR/setup" "$@"
+}
+
+cmd_tutorial() {
+    exec python3 "$PAW_DIR/tutorial"
+}
+
+cmd_version() {
+    ver=$(grep 'version' "$PAW_DIR/pyproject.toml" | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+    printf "paw v%s\n" "$ver"
+    printf "${DIM}%s${RESET}\n" "$PAW_DIR"
+}
+
+cmd_agents() {
+    printf "${CYAN}${BOLD}paw agents${RESET} — 18 specialized agents\n\n"
+    printf "${BOLD}%-22s %-12s %s${RESET}\n" "AGENT" "PHASE" "PERMISSION"
+    printf "%-22s %-12s %s\n" "──────────────────────" "────────────" "──────────────"
+    printf "%-22s %-12s %s\n" "architect"              "plan"         "read-only"
+    printf "%-22s %-12s %s\n" "planner"                "plan"         "read-only"
+    printf "%-22s %-12s %s\n" "devils-advocate"        "plan"         "read-only"
+    printf "%-22s %-12s %s\n" "rollback-planner"       "plan"         "read-only"
+    printf "%-22s %-12s %s\n" "builder"                "build"        "full"
+    printf "%-22s %-12s %s\n" "merge-resolver"         "build"        "full"
+    printf "%-22s %-12s %s\n" "migration-architect"    "build"        "full"
+    printf "%-22s %-12s %s\n" "code-reviewer"          "review"       "read-only"
+    printf "%-22s %-12s %s\n" "bug-auditor"            "review"       "read-only"
+    printf "%-22s %-12s %s\n" "security-reviewer"      "review"       "read-only"
+    printf "%-22s %-12s %s\n" "perf-checker"           "review"       "read-only"
+    printf "%-22s %-12s %s\n" "fe-reviewer"            "review"       "read-only"
+    printf "%-22s %-12s %s\n" "php-reviewer"           "review"       "read-only"
+    printf "%-22s %-12s %s\n" "test-runner"            "review"       "read+bash"
+    printf "%-22s %-12s %s\n" "integration-tester"     "review"       "read+bash"
+    printf "%-22s %-12s %s\n" "environment-checker"    "review"       "read+bash"
+    printf "%-22s %-12s %s\n" "incident-commander"     "respond"      "full"
+    printf "%-22s %-12s %s\n" "docs-writer"            "document"     "read+write"
+}
+
+cmd_gate() {
+    local agent="$1"
+    case "$agent" in
+        security)  agent="security-reviewer" ;;
+        bugs)      agent="bug-auditor" ;;
+        code)      agent="code-reviewer" ;;
+        perf)      agent="perf-checker" ;;
+        frontend)  agent="fe-reviewer" ;;
+        php)       agent="php-reviewer" ;;
+        tests)     agent="test-runner" ;;
+        docs)      agent="docs-writer" ;;
+        env)       agent="environment-checker" ;;
+    esac
+    printf "${CYAN}Running:${RESET} %s\n\n" "$agent"
+    printf "Paste this into Claude Code, Cursor, or Codex CLI:\n\n"
+    printf "  ${BOLD}Use the %s agent on the current diff.${RESET}\n\n" "$agent"
+    printf "${DIM}Agent definition: %s/agents/%s.md${RESET}\n" "$PAW_DIR" "$agent"
+}
+
+cmd_check() {
+    local preset="standard"
+    for arg in "$@"; do
+        case "$arg" in
+            --quick)    preset="quick" ;;
+            --thorough) preset="thorough" ;;
+        esac
+    done
+
+    printf "${CYAN}${BOLD}paw check${RESET} — %s quality gate\n\n" "$preset"
+
+    case "$preset" in
+        quick)
+            printf "Paste this into Claude Code, Cursor, or Codex CLI:\n\n"
+            printf "  ${BOLD}Use the code-reviewer agent on the current diff.${RESET}\n"
+            ;;
+        standard)
+            printf "Paste this into Claude Code, Cursor, or Codex CLI:\n\n"
+            printf "  ${BOLD}Use the code-reviewer agent, then the bug-auditor\n"
+            printf "  agent, then the security-reviewer agent on the\n"
+            printf "  current diff.${RESET}\n"
+            ;;
+        thorough)
+            printf "Paste this into Claude Code, Cursor, or Codex CLI:\n\n"
+            printf "  ${BOLD}Use the code-reviewer, bug-auditor, security-reviewer,\n"
+            printf "  perf-checker, fe-reviewer, php-reviewer, test-runner,\n"
+            printf "  and docs-writer agents on the current diff.${RESET}\n"
+            ;;
+    esac
+
+    printf "\n${DIM}Preset definitions: %s/skills/quality-gate/SKILL.md${RESET}\n" "$PAW_DIR"
+}
+
+cmd_init() {
+    local target="${1:-.}"
+    local config_file="$target/.paw.json"
+
+    if [ ! -d "$target" ]; then
+        printf "${RED}Directory not found: %s${RESET}\n" "$target"
+        return 1
+    fi
+
+    if [ -f "$config_file" ]; then
+        printf "${YELLOW}%s already exists.${RESET}\n" "$config_file"
+        printf "Edit it directly, or delete it to re-init.\n"
+        return 1
+    fi
+
+    cat > "$config_file" << 'INITEOF'
+{
+  "paw_version": "0.2.0",
+  "description": "paw config — customize which agents, rules, and gates apply to this project.",
+
+  "agents": {
+    "enabled": [
+      "architect",
+      "planner",
+      "devils-advocate",
+      "code-reviewer",
+      "bug-auditor",
+      "security-reviewer",
+      "builder",
+      "test-runner",
+      "perf-checker",
+      "docs-writer"
+    ],
+    "disabled": [
+      "fe-reviewer",
+      "php-reviewer",
+      "merge-resolver",
+      "migration-architect",
+      "incident-commander",
+      "rollback-planner",
+      "integration-tester",
+      "environment-checker"
+    ]
+  },
+
+  "rules": {
+    "enabled": [
+      "git-doctrine",
+      "test-first",
+      "error-handling",
+      "no-secrets-in-code",
+      "branch-hygiene",
+      "security-basics"
+    ]
+  },
+
+  "quality_gate": {
+    "default_preset": "standard",
+    "presets": {
+      "quick": ["code-reviewer"],
+      "standard": ["code-reviewer", "bug-auditor", "security-reviewer"],
+      "thorough": [
+        "code-reviewer", "bug-auditor", "security-reviewer",
+        "perf-checker", "test-runner", "docs-writer"
+      ]
+    }
+  },
+
+  "history": {
+    "enabled": false,
+    "path": ".paw/history.jsonl"
+  }
+}
+INITEOF
+
+    printf "${GREEN}✓${RESET} Created %s\n\n" "$config_file"
+    printf "  Edit ${BOLD}agents.enabled${RESET} to choose which agents run.\n"
+    printf "  Edit ${BOLD}agents.disabled${RESET} to skip irrelevant ones.\n"
+    printf "  Edit ${BOLD}quality_gate.default_preset${RESET} for your team's default.\n"
+    printf "\n  ${DIM}Add .paw.json to version control so your team shares the config.${RESET}\n"
+}
+
+cmd_doctor() {
+    printf "${CYAN}${BOLD}paw doctor${RESET} — checking your install\n\n"
+    local issues=0
+
+    # Check Python
+    if command -v python3 &>/dev/null; then
+        printf "  ${GREEN}✓${RESET} Python3 found\n"
+    else
+        printf "  ${RED}✗${RESET} Python3 not found\n"
+        issues=$((issues + 1))
+    fi
+
+    # Check curses
+    if python3 -c "import curses" 2>/dev/null; then
+        printf "  ${GREEN}✓${RESET} curses module available\n"
+    else
+        printf "  ${RED}✗${RESET} curses module missing\n"
+        issues=$((issues + 1))
+    fi
+
+    # Check hook files exist
+    for hook in git_safety.py branch_guard.py auto_test_detect.sh _lib.py; do
+        if [ -f "$PAW_DIR/hooks/$hook" ]; then
+            printf "  ${GREEN}✓${RESET} hooks/%s exists\n" "$hook"
+        else
+            printf "  ${RED}✗${RESET} hooks/%s missing\n" "$hook"
+            issues=$((issues + 1))
+        fi
+    done
+
+    # Check hooks are executable
+    for hook in git_safety.py branch_guard.py auto_test_detect.sh; do
+        if [ -x "$PAW_DIR/hooks/$hook" ]; then
+            printf "  ${GREEN}✓${RESET} hooks/%s executable\n" "$hook"
+        else
+            printf "  ${YELLOW}!${RESET} hooks/%s not executable — fixing\n" "$hook"
+            chmod +x "$PAW_DIR/hooks/$hook"
+        fi
+    done
+
+    # Check settings.json has paw hooks
+    local settings="$HOME/.claude/settings.json"
+    if [ -f "$settings" ]; then
+        if grep -q "git_safety.py" "$settings" 2>/dev/null; then
+            printf "  ${GREEN}✓${RESET} git_safety hook installed in settings.json\n"
+        else
+            printf "  ${YELLOW}!${RESET} git_safety hook not in settings.json\n"
+            printf "    ${DIM}Run: paw setup${RESET}\n"
+            issues=$((issues + 1))
+        fi
+        if grep -q "branch_guard.py" "$settings" 2>/dev/null; then
+            printf "  ${GREEN}✓${RESET} branch_guard hook installed in settings.json\n"
+        else
+            printf "  ${YELLOW}!${RESET} branch_guard hook not in settings.json\n"
+            issues=$((issues + 1))
+        fi
+    else
+        printf "  ${YELLOW}!${RESET} ~/.claude/settings.json not found\n"
+        printf "    ${DIM}Is Claude Code installed?${RESET}\n"
+        issues=$((issues + 1))
+    fi
+
+    # Check agent files
+    local agent_count
+    agent_count=$(find "$PAW_DIR/agents" -name "*.md" -not -name "README.md" | wc -l | tr -d ' ')
+    if [ "$agent_count" -eq 18 ]; then
+        printf "  ${GREEN}✓${RESET} All 18 agent definitions present\n"
+    else
+        printf "  ${YELLOW}!${RESET} Found %s agent files (expected 18)\n" "$agent_count"
+        issues=$((issues + 1))
+    fi
+
+    # Check hook self-test
+    local test_result
+    test_result=$(echo '{"tool_input":{"command":"git rebase main"}}' | python3 "$PAW_DIR/hooks/git_safety.py" 2>&1 || true)
+    if echo "$test_result" | grep -q "block"; then
+        printf "  ${GREEN}✓${RESET} git_safety.py blocks rebase (verified)\n"
+    else
+        printf "  ${RED}✗${RESET} git_safety.py did not block rebase\n"
+        issues=$((issues + 1))
+    fi
+
+    # Check tests pass
+    if command -v pytest &>/dev/null || python3 -m pytest --version &>/dev/null 2>&1; then
+        if python3 -m pytest "$PAW_DIR/tests/" -q --tb=no 2>/dev/null | grep -q "passed"; then
+            local passed
+            passed=$(python3 -m pytest "$PAW_DIR/tests/" -q --tb=no 2>/dev/null | grep -oE '[0-9]+ passed')
+            printf "  ${GREEN}✓${RESET} Tests: %s\n" "$passed"
+        else
+            printf "  ${YELLOW}!${RESET} Some tests failing\n"
+            printf "    ${DIM}Run: python3 -m pytest %s/tests/ -v${RESET}\n" "$PAW_DIR"
+            issues=$((issues + 1))
+        fi
+    else
+        printf "  ${DIM}-${RESET} pytest not installed (optional)\n"
+    fi
+
+    printf "\n"
+    if [ "$issues" -eq 0 ]; then
+        printf "  ${GREEN}${BOLD}No issues found.${RESET} paw is healthy.\n"
+    else
+        printf "  ${YELLOW}${BOLD}%d issue(s) found.${RESET}\n" "$issues"
+        printf "  ${DIM}Run: paw setup${RESET}\n"
+    fi
+    printf "\n"
+}
+
+# ── Dispatch ───────────────────────────────────────────
+
+cmd="${1:-help}"
+shift 2>/dev/null || true
+
+case "$cmd" in
+    setup)      cmd_setup "$@" ;;
+    tutorial)   cmd_tutorial ;;
+    doctor)     cmd_doctor ;;
+    init)       cmd_init "$@" ;;
+    check)      cmd_check "$@" ;;
+    gate)
+        if [ -z "${1:-}" ]; then
+            printf "${RED}Usage: paw gate <agent-name>${RESET}\n"
+            printf "  Run ${CYAN}paw agents${RESET} to see available agents.\n"
+            exit 1
+        fi
+        cmd_gate "$1"
+        ;;
+    agents)     cmd_agents ;;
+    version|-v|--version)  cmd_version ;;
+    help|-h|--help)        show_help ;;
+    *)
+        printf "${RED}Unknown command: %s${RESET}\n\n" "$cmd"
+        show_help
+        exit 1
+        ;;
+esac
