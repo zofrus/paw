@@ -12,7 +12,8 @@ BLOCKS = [
     (
         r"\bgit\s+rebase\b",
         "PAW_ALLOW_REBASE",
-        "git rebase rewrites published history. Use 'git pull origin <branch>' instead.",
+        "git rebase rewrites published history."
+        " Use 'git pull origin <branch>' instead.",
     ),
     (
         r"\bgit\s+pull\s+.*--rebase\b",

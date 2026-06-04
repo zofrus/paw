@@ -1,6 +1,6 @@
 """
 All tutorial page content. Plain strings and ASCII art.
-Each page is a dict with: title, section, body (list of lines), art (optional list of lines).
+Pages are dicts with: title, section, body (list of lines), art (optional).
 """
 
 # ── ASCII Art ──────────────────────────────────────────────
@@ -266,7 +266,7 @@ PAGES = [
         "section": "Components",
         "art": DISTINCTION_ART,
         "art_color": 3,  # yellow (default for borders)
-        # Per-row colors: borders=yellow(3), header=cyan(1), data rows alternate green(2)/magenta(4)
+        # Row colors: borders=yellow, header=cyan, data alternates green/magenta
         "art_row_colors": [3, 1, 3, 2, 4, 2, 4, 2, 4, 2, 3],
         "body": [
             "",
@@ -288,8 +288,8 @@ PAGES = [
             "  An agent is an LLM given a job.",
             "",
             "  Whether it's on your laptop, in a",
-            "  company product, or in a platform",
-            "  like Artemis -- the concept is the same:",
+            "  company product, or in an enterprise",
+            "  platform -- the concept is the same:",
             "",
             "  MODEL     An LLM (Claude, GPT, etc.)",
             "  CONTEXT   What it knows about the task",
