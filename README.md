@@ -23,224 +23,183 @@
 
 ## What is this?
 
-paw is a lightweight, composable AI SDLC (Software Development Lifecycle) toolkit. It gives your AI coding agent:
+paw is a composable AI SDLC toolkit. It gives your AI coding agent:
 
-- **Standards that are enforced, not suggested** — rules that hooks block on, not READMEs people skip
-- **Specialized reviewers** — 18 agents that each check a different dimension of code quality
-- **Domain knowledge** — 7 skill bundles for architecture, security, frontend, PHP/Laravel, and more
-- **Git guardrails** — hooks that mechanically prevent rebase, force-push, and commits to main
+- **Standards that are enforced, not suggested** — hooks that block, not READMEs people skip
+- **Specialized reviewers** — 18 agents that each check a different dimension
+- **Domain knowledge** — 7 skill bundles for architecture, security, frontend, PHP, and more
+- **Git guardrails** — mechanically prevent rebase, force-push, and commits to main
+- **A CLI** — `paw check`, `paw gate security`, `paw doctor`, `paw init`
 
-paw is extracted from [forge](https://github.com/zofrus/forge), a full 16-phase multi-agent delivery pipeline. paw is the starter kit — the pieces you can adopt today without the full pipeline.
+paw is extracted from [forge](https://github.com/zofrus/forge), a full 16-phase multi-agent delivery pipeline. paw is the starter kit.
+
+## Getting started
+
+```bash
+git clone https://github.com/zofrus/paw.git ~/paw
+cd ~/paw
+./paw setup
+```
+
+Clone anywhere — `~/paw`, `~/tools/paw`, wherever. Setup detects its own location and writes correct paths. It checks Python 3.10+, curses, git, terminal, and Claude Code. Backs up your settings before touching them.
+
+## The paw CLI
+
+```
+paw setup              Check requirements, install hooks
+paw tutorial            Interactive TUI walkthrough (learn paw)
+paw tutorial --web      Open the browser-based tutorial
+paw doctor              Diagnose problems with your install
+paw init                Scaffold .paw.json config into a project
+paw check               Standard quality gate (3 reviewers)
+paw check --quick       Quick gate (code-reviewer only)
+paw check --thorough    Thorough gate (all 8 reviewers)
+paw gate <name>         Run a single review agent
+paw agents              List all 18 agents
+paw version             Show version
+```
+
+## Tutorials
+
+Two ways to learn paw:
+
+### Terminal (TUI)
+
+```bash
+./paw tutorial
+```
+
+Interactive walkthrough with sidebar navigation, ASCII art, and typewriter animations. 17 pages, 7 sections, ~5 minutes. Choose between:
+
+- **Learn paw** — what paw is, how it works, the components
+- **Hands-on** — install hooks, run agents, write a rule (for Tech Forge)
+
+### Browser
+
+```bash
+./paw tutorial --web
+# or: python3 -m http.server 8080 & open http://localhost:8080/tutorial.html
+```
+
+Same content, dark theme, sidebar navigation. For designers and PMs who prefer a browser.
 
 ## What's inside
 
 ```
 paw/
+├── paw              CLI — the main entry point
+├── setup            requirement checker + hook installer
+├── tutorial         TUI walkthrough (curses)
+├── tutorial.html    browser walkthrough
+│
 ├── agents/          18 specialized agents
-│   ├── architect.md         planner.md
-│   ├── devils-advocate.md   rollback-planner.md
-│   ├── code-reviewer.md     bug-auditor.md
-│   ├── security-reviewer.md perf-checker.md
-│   ├── fe-reviewer.md       php-reviewer.md
-│   ├── builder.md           merge-resolver.md
-│   ├── migration-architect.md
-│   ├── incident-commander.md
-│   ├── test-runner.md       integration-tester.md
-│   ├── environment-checker.md
-│   └── docs-writer.md
+│   ├── architect        planner          devils-advocate
+│   ├── rollback-planner builder          merge-resolver
+│   ├── migration-architect               incident-commander
+│   ├── code-reviewer    bug-auditor      security-reviewer
+│   ├── perf-checker     fe-reviewer      php-reviewer
+│   ├── test-runner      integration-tester
+│   ├── environment-checker               docs-writer
+│   └── README.md
 │
 ├── skills/          7 domain knowledge bundles
-│   ├── architecture/
-│   ├── devils-advocate/
-│   ├── frontend/
-│   ├── php-laravel/
-│   ├── security/
-│   ├── quality-gate/
+│   ├── architecture/    devils-advocate/  frontend/
+│   ├── php-laravel/     security/         quality-gate/
 │   └── git-safety/
 │
-├── hooks/           4 enforcement hooks
-│   ├── git_safety.py
-│   ├── branch_guard.py
-│   ├── auto_test_detect.sh
-│   └── _lib.py
+├── hooks/           enforcement hooks
+│   ├── git_safety.py        block rebase, force-push, reset --hard
+│   ├── branch_guard.py      block commits on main/master/develop
+│   ├── auto_test_detect.sh  warn on missing test files
+│   ├── install_hooks.py     settings.json installer
+│   └── _lib.py              shared helpers
 │
 ├── rules/           6 doctrine pages
-│   ├── git-doctrine.md
-│   ├── test-first.md
-│   ├── error-handling.md
-│   ├── no-secrets-in-code.md
-│   ├── branch-hygiene.md
-│   └── security-basics.md
+│   ├── git-doctrine     test-first       error-handling
+│   ├── no-secrets       branch-hygiene   security-basics
+│   └── README.md
 │
-├── contexts/        4 task-mode prompts
-│   ├── dev.md
-│   ├── review.md
-│   ├── security.md
-│   └── research.md
+├── contexts/        4 mindset modes
+│   ├── dev    review    security    research
+│   └── README.md
 │
-├── setup            checks requirements, installs hooks
-├── tutorial         interactive TUI walkthrough
-├── tutorial_engine/ tutorial rendering engine
+├── examples/        practice targets
+│   └── buggy-app/   intentionally buggy app for training
 │
-├── CLAUDE.md        project instructions (Claude Code)
-├── AGENTS.md        agent index (Codex CLI)
-└── .cursor/rules/   Cursor IDE integration
+├── tests/           58 tests (hooks, navigation, content)
+├── CLAUDE.md        Claude Code integration
+├── AGENTS.md        Codex CLI integration
+├── .cursor/rules/   Cursor IDE integration
+├── .pre-commit-hooks.yaml  git pre-commit framework
+├── pyproject.toml   Python project config
+├── CONTRIBUTING.md  how to contribute
+├── CHANGELOG.md     version history
+└── LICENSE          MIT
 ```
 
-## Getting started
+## Quality gates
 
-### 1. Clone and run setup
+Three presets for different situations:
 
-```bash
-# Clone anywhere you want — paw detects its own location at runtime
-git clone https://github.com/zofrus/paw.git ~/paw
-cd ~/paw
-./setup
-```
+| Preset | Agents | When to use |
+|---|---|---|
+| `paw check --quick` | code-reviewer | Fast feedback during development |
+| `paw check` | code-reviewer, bug-auditor, security-reviewer | Before requesting code review (default) |
+| `paw check --thorough` | 8 reviewers (code, bugs, security, perf, tests, docs, + stack-specific) | Before merging significant features |
 
-Clone to any path — `~/paw`, `~/tools/paw`, your projects directory, wherever. The setup script detects its own location and writes the correct absolute paths to your Claude Code settings. No hardcoded paths.
-
-Setup checks everything you need (Python 3.10+, curses, git, terminal size, Claude Code) and walks you through installing hooks. If anything's missing, it tells you exactly how to fix it for your platform. It backs up your Claude Code settings before touching them.
-
-### 2. Run the interactive tutorial
-
-```bash
-./tutorial
-```
-
-```
-  ┌──────────────────────────────────────────────────────┐
-  │                                                      │
-  │   17 pages  ·  7 sections  ·  ~5 minutes             │
-  │                                                      │
-  │   [</>] Navigate   [s] Skip section   [q] Quit       │
-  │                                                      │
-  │   Covers: what paw is, agents, hooks, rules,         │
-  │   how to install, how to customize.                   │
-  │                                                      │
-  │   Requires: Python 3.10+, 80x24+ terminal            │
-  │   Dependencies: none (Python stdlib only)             │
-  │                                                      │
-  └──────────────────────────────────────────────────────┘
-```
-
-Animations are interruptible — any keypress during a typewriter or slide-in effect completes it instantly. You're never trapped waiting.
-
-## Quick start
-
-### Option 1: Run setup (recommended)
-
-```bash
-git clone https://github.com/zofrus/paw.git ~/paw
-cd ~/paw
-./setup
-```
-
-Setup checks requirements, installs hooks (using the actual clone path, not a hardcoded one), and verifies everything works. If you want to install hooks manually instead, see `hooks/README.md`.
-
-### Option 2: Agents on demand (10 minutes)
-
-Use any agent by name in Claude Code:
-
-```
-> Use the security-reviewer agent to review this branch.
-> Use the architect agent to design a solution for adding password reset.
-> Use the fe-reviewer agent on the React components I just changed.
-> Use the bug-auditor agent on the current diff.
-> Use the php-reviewer agent on the Laravel controllers in this PR.
-```
-
-### Option 3: Full quality review
-
-Run multiple review agents for a comprehensive check:
-
-```
-> Use the code-reviewer agent, then the bug-auditor agent,
-  then the security-reviewer agent on the current diff.
-```
-
-Three independent perspectives — correctness, latent bugs, and security — each from a specialist.
-
-### Option 4: Plan, Build, Review workflow
-
-The full lightweight SDLC:
-
-```
-> Use the architect agent to design a solution for [your task].
-> Use the planner agent to turn the architecture into a plan.
-> Use the devils-advocate agent to critique the plan.
-> Use the builder agent to implement workstream 1.
-> Use the code-reviewer agent on the changes.
-```
-
-## How it works
-
-```
-┌──────────┐     ┌──────────┐     ┌──────────┐
-│  AGENTS  │────▶│  SKILLS  │     │ CONTEXTS │
-│ 18 roles │     │  domain  │     │  mindset │
-│ scoped   │     │  know-   │     │  modes   │
-│ perms    │     │  ledge   │     │          │
-└────┬─────┘     └──────────┘     └──────────┘
-     │                                  │
-     │ reference                   loaded by
-     ▼                                  │
-┌──────────┐                            │
-│  RULES   │◄───────────────────────────┘
-│ 6 pages  │
-└────┬─────┘
-     │ enforced by
-     ▼
-┌──────────┐
-│  HOOKS   │  ◄── fire on Claude Code events
-│ 4 files  │
-└──────────┘
-```
-
-- **Agents** do the work. Each has scoped permissions (most are read-only).
-- **Skills** provide domain knowledge. Agents load them for expertise.
-- **Contexts** set the mindset (building vs reviewing vs security audit).
-- **Rules** are the source of truth. Agents reference them.
-- **Hooks** enforce rules mechanically. They fire on Claude Code events.
+Or run a single gate: `paw gate security`, `paw gate bugs`, `paw gate perf`
 
 ## Agent permissions
 
-Most agents can only read. This is by design.
+14 of 18 agents have restricted permissions. Trust through structural limitation.
 
 | Tier | Agents | Can do |
 |---|---|---|
-| **Read-only** | architect, planner, devils-advocate, code-reviewer, bug-auditor, security-reviewer, perf-checker, fe-reviewer, php-reviewer, rollback-planner | Look and report. Cannot modify. |
-| **Read + Bash** | test-runner, integration-tester, environment-checker | Run tests/checks. Cannot edit code. |
-| **Read + Write** | docs-writer | Edit docs. Cannot run commands. |
-| **Full** | builder, merge-resolver, migration-architect, incident-commander | Implementation and operations. |
+| **Read-only** (10) | architect, planner, devils-advocate, rollback-planner, code-reviewer, bug-auditor, security-reviewer, perf-checker, fe-reviewer, php-reviewer | Look and report. Cannot modify. |
+| **Read + Bash** (3) | test-runner, integration-tester, environment-checker | Run tests/checks. Cannot edit code. |
+| **Read + Write** (1) | docs-writer | Edit docs. Cannot run commands. |
+| **Full** (4) | builder, merge-resolver, migration-architect, incident-commander | Implementation and operations. |
+
+## Team config
+
+Scaffold a `.paw.json` into your project to customize for your team:
+
+```bash
+paw init
+```
+
+This creates `.paw.json` with:
+- **agents.enabled** — which agents run for this project
+- **agents.disabled** — which to skip (e.g., disable `php-reviewer` for a JS project)
+- **quality_gate.default_preset** — your team's default check level
+- **history** — opt-in run logging to `.paw/history.jsonl`
+
+Check `.paw.json` into version control so your team shares the config.
+
+## Works with
+
+| Tool | Integration | Setup |
+|---|---|---|
+| **Claude Code** | Native — hooks, agents, skills, contexts | `paw setup` |
+| **Cursor** | `.cursor/rules/paw.mdc` auto-loaded | Clone paw into your project |
+| **Codex CLI** | `AGENTS.md` discovered automatically | Clone paw into your project |
+| **pre-commit** | `.pre-commit-hooks.yaml` | Add paw repo to `.pre-commit-config.yaml` |
+| **Any tool** | Plain markdown files | Point your tool at the `.md` file |
 
 ## Customizing
 
 ### Add a rule
 
-Create `rules/your-rule.md`:
-
 ```markdown
 # Your Rule Name
-
 **Statement:** One sentence.
-
 **Why:** Why this matters.
-
 ## Hard rules
 - ...
-
-## Soft rules
-- ...
-
 **Enforced by:** which agents/hooks check this.
 ```
 
-Then reference it in the relevant agent's Rules section.
-
 ### Add an agent
-
-Create `agents/your-agent.md` with frontmatter:
 
 ```yaml
 ---
@@ -255,32 +214,25 @@ Then add: Role, Context, Rules, Process, Done when.
 
 ### Add a skill
 
-Create `skills/your-skill/SKILL.md` with the domain knowledge. Reference it from relevant agents.
+Create `skills/your-skill/SKILL.md` with domain knowledge. Reference it from agents.
 
-## Works with
+## Practice
 
-### Claude Code
+Run agents against the example buggy app:
 
-paw was built for Claude Code. Agents, hooks, skills, and contexts integrate natively. Run `./setup` to install hooks, then invoke agents by name.
+```bash
+paw gate security    # then point it at examples/buggy-app/
+```
 
-### Cursor
+The app has 6 security holes, 4 latent bugs, an N+1 query, and zero tests. See `examples/buggy-app/README.md` for the full list (spoiler-tagged).
 
-paw ships with `.cursor/rules/paw.mdc` — Cursor loads it automatically. It references all agents, skills, and rules so Cursor knows your team's standards. No configuration needed beyond cloning the repo into your project.
+## Troubleshooting
 
-### OpenAI Codex CLI
+```bash
+paw doctor
+```
 
-paw ships with `AGENTS.md` at the repo root. Codex CLI reads this file to discover agent definitions. Reference agents by name in your prompts just like Claude Code.
-
-### Any AI coding tool
-
-The agents, rules, and skills are plain markdown files. Any tool that reads markdown context (Windsurf, Aider, Continue, etc.) can use them. Point your tool at the relevant `.md` file.
-
-## What this is NOT
-
-- **Not a pipeline.** paw is tools, not a workflow. You invoke what you need.
-- **Not a replacement for human review.** Agents augment. Humans decide.
-- **Not opinionated about your stack.** Works with any language, any framework.
-- **Not a vendor product.** You own it. Fork it. Change it. Delete what you don't need.
+Checks: Python version, curses module, hook files, settings.json, agent count, hook self-test, and test suite. Tells you exactly what's wrong and how to fix it.
 
 ## Want the full pipeline?
 
