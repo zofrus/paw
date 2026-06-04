@@ -33,7 +33,15 @@ def main():
         return
 
     branch = current_branch()
-    if branch and branch in PROTECTED:
+    if branch is None:
+        emit(
+            "Could not determine current branch. Commit blocked as a precaution.",
+            "block",
+            "Branch detection failed — fail-closed.",
+        )
+        sys.exit(2)
+
+    if branch in PROTECTED:
         reason = f"Cannot commit directly to '{branch}'. Create a feature branch first."
         emit(reason, "block", reason)
         sys.exit(2)

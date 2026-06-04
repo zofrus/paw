@@ -5,7 +5,7 @@
 # Safe and localized: modifies only ~/.claude/settings.json (with backup).
 # Does not install anything globally. Does not use sudo.
 
-set -uo pipefail
+set -euo pipefail
 
 # Detect non-interactive mode (piped stdin)
 INTERACTIVE=true
@@ -70,9 +70,11 @@ MIN_MINOR=10
 
 for cmd in python3 python; do
     if command -v "$cmd" &>/dev/null; then
-        ver=$("$cmd" --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+        ver=$("$cmd" --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)
+        [ -z "$ver" ] && continue
         major=$(echo "$ver" | cut -d. -f1)
         minor=$(echo "$ver" | cut -d. -f2)
+        [ -z "$major" ] || [ -z "$minor" ] && continue
         if [ "$major" -ge "$MIN_MAJOR" ] && [ "$minor" -ge "$MIN_MINOR" ]; then
             PYTHON_CMD="$cmd"
             break
@@ -297,66 +299,8 @@ else
             pass_check "Backed up settings.json -> settings.json.paw-backup"
         fi
 
-        # Generate the hooks config using Python for reliable JSON handling
         if [ -n "$PYTHON_CMD" ]; then
-            "$PYTHON_CMD" << PYEOF
-import json, os, sys
-
-settings_path = os.path.expanduser("~/.claude/settings.json")
-paw_dir = "$PAW_DIR"
-
-# Load existing settings or start fresh
-if os.path.exists(settings_path):
-    with open(settings_path) as f:
-        try:
-            settings = json.load(f)
-        except json.JSONDecodeError:
-            settings = {}
-else:
-    os.makedirs(os.path.dirname(settings_path), exist_ok=True)
-    settings = {}
-
-hooks = settings.setdefault("hooks", {})
-
-# paw PreToolUse hooks
-paw_pre = [
-    {"type": "command", "command": f"python3 {paw_dir}/hooks/git_safety.py"},
-    {"type": "command", "command": f"python3 {paw_dir}/hooks/branch_guard.py"},
-]
-
-# paw PostToolUse hooks
-paw_post = [
-    {"type": "command", "command": f"bash {paw_dir}/hooks/auto_test_detect.sh"},
-]
-
-# Merge into existing hooks without duplicating
-pre_entries = hooks.get("PreToolUse", [])
-post_entries = hooks.get("PostToolUse", [])
-
-# Check if paw hooks already installed
-paw_cmds = {h["command"] for h in paw_pre + paw_post}
-existing_cmds = set()
-for entry in pre_entries + post_entries:
-    for h in entry.get("hooks", []):
-        existing_cmds.add(h.get("command", ""))
-
-if paw_cmds & existing_cmds:
-    print("  paw hooks already installed in settings.json.")
-    sys.exit(0)
-
-# Add paw hooks
-pre_entries.append({"matcher": "Bash", "hooks": paw_pre})
-post_entries.append({"matcher": "Write|Edit", "hooks": paw_post})
-
-hooks["PreToolUse"] = pre_entries
-hooks["PostToolUse"] = post_entries
-
-with open(settings_path, "w") as f:
-    json.dump(settings, f, indent=2)
-    f.write("\n")
-
-print("  Hooks installed successfully.")
-PYEOF
+            "$PYTHON_CMD" "$PAW_DIR/hooks/install_hooks.py" "$PAW_DIR"
             pass_check "Hooks added to ~/.claude/settings.json"
         else
             fail_check "Python not available — cannot write settings.json"

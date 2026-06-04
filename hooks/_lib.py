@@ -2,14 +2,19 @@
 """paw hook helpers."""
 
 import json
-import sys
 import os
+import sys
+
+MAX_TRAVERSAL_DEPTH = 50
 
 
 def read_payload():
     try:
         return json.loads(sys.stdin.read())
-    except Exception:
+    except json.JSONDecodeError:
+        print("paw: malformed JSON on stdin", file=sys.stderr)
+        return {}
+    except (EOFError, IOError):
         return {}
 
 
@@ -22,7 +27,8 @@ def emit(message="", decision="allow", reason=""):
             "permissionDecision": decision,
             "reason": reason,
         }
-    print(json.dumps(output))
+    if output:
+        print(json.dumps(output))
 
 
 def find_project_root(start=None):
@@ -34,10 +40,11 @@ def find_project_root(start=None):
         "composer.json",
         "Cargo.toml",
     ]
-    while True:
+    for _ in range(MAX_TRAVERSAL_DEPTH):
         if any(os.path.exists(os.path.join(d, m)) for m in markers):
             return d
         parent = os.path.dirname(d)
         if parent == d:
             return None
         d = parent
+    return None

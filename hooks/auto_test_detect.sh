@@ -3,7 +3,7 @@
 # PostToolUse hook, matcher: Write|Edit
 # Does NOT run tests — just warns if no test file exists.
 
-set -euo pipefail
+set -uo pipefail
 
 PAYLOAD=$(cat)
 FILE=$(echo "$PAYLOAD" | python3 -c "import sys,json; print(json.loads(sys.stdin.read()).get('tool_input',{}).get('file_path',''))" 2>/dev/null || echo "")
@@ -39,5 +39,10 @@ for PATTERN in "${DIR}/${BASE}.test."* "${DIR}/${BASE}.spec."* "${DIR}/__tests__
 done
 
 if [ "$FOUND" -eq 0 ]; then
-    echo "{\"systemMessage\": \"No test file found for ${FILE}. Consider adding tests.\"}"
+    # Use Python for safe JSON serialization
+    python3 -c "
+import json
+msg = 'No test file found for $FILE. Consider adding tests.'
+print(json.dumps({'systemMessage': msg}))
+" 2>/dev/null || echo "{\"systemMessage\": \"No test file found. Consider adding tests.\"}"
 fi

@@ -174,7 +174,7 @@ The full lightweight SDLC:
 ```
 ┌──────────┐     ┌──────────┐     ┌──────────┐
 │  AGENTS  │────▶│  SKILLS  │     │ CONTEXTS │
-│ 12 roles │     │  domain  │     │  mindset │
+│ 18 roles │     │  domain  │     │  mindset │
 │ scoped   │     │  know-   │     │  modes   │
 │ perms    │     │  ledge   │     │          │
 └────┬─────┘     └──────────┘     └──────────┘

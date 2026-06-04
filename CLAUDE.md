@@ -10,7 +10,7 @@ A lightweight, composable toolkit that gives your AI coding agent standards enfo
 Every directory runs independently. Agents work without skills. Hooks work without agents. Rules are plain markdown anyone can read. Don't add cross-directory dependencies.
 
 ### Agents have scoped permissions
-Most agents are read-only. Only the builder gets full access. This is intentional — trust through bounded autonomy.
+Most agents are read-only. Only 4 of 18 agents have full access (builder, merge-resolver, migration-architect, incident-commander). This is intentional — trust through bounded autonomy.
 
 ### Rules are the source of truth
 If a rule in `rules/` contradicts how an agent behaves, fix the agent. Rules don't bend to implementation convenience.

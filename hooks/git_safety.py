@@ -2,8 +2,8 @@
 """Block dangerous git operations. PreToolUse hook, matcher: Bash."""
 
 import re
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 from _lib import read_payload, emit
@@ -20,7 +20,7 @@ BLOCKS = [
         "git pull --rebase rewrites history. Use 'git pull' (merge) instead.",
     ),
     (
-        r"\bgit\s+push\s+.*(-f\b|--force\b|--force-with-lease\b)",
+        r"\bgit\s+push\s+.*(-f\b|--force(?!-with-lease)\b)",
         "PAW_ALLOW_FORCE_PUSH",
         "Force-push overwrites remote history. Use 'git pull' then 'git push' instead.",
     ),
@@ -35,11 +35,16 @@ BLOCKS = [
         "git reset --hard discards uncommitted work. Use 'git stash' instead.",
     ),
     (
-        r"\bgit\s+checkout\s+\.\s*$",
+        r"\bgit\s+checkout\s+\.",
         None,
         "git checkout . silently discards all changes. Use 'git stash' instead.",
     ),
 ]
+
+
+def normalize_command(cmd):
+    """Flatten multi-line commands so regex patterns can't be bypassed via newlines."""
+    return " ".join(cmd.split())
 
 
 def main():
@@ -47,6 +52,8 @@ def main():
     cmd = payload.get("tool_input", {}).get("command", "")
     if not cmd:
         return
+
+    cmd = normalize_command(cmd)
 
     for pattern, override_env, reason in BLOCKS:
         if re.search(pattern, cmd):

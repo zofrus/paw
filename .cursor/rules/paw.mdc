@@ -28,6 +28,8 @@ When asked to review, plan, or build, reference the appropriate agent definition
 
 - **Architecture:** Read `agents/architect.md` for system design approach
 - **Planning:** Read `agents/planner.md` for implementation planning
+- **Devil's advocate:** Read `agents/devils-advocate.md` for adversarial plan review
+- **Rollback planning:** Read `agents/rollback-planner.md` for rollback procedures
 - **Code review:** Read `agents/code-reviewer.md` for review checklist
 - **Security:** Read `agents/security-reviewer.md` for OWASP Top 10 checklist
 - **Bug hunting:** Read `agents/bug-auditor.md` for latent bug patterns
@@ -35,6 +37,11 @@ When asked to review, plan, or build, reference the appropriate agent definition
 - **PHP/Laravel:** Read `agents/php-reviewer.md` for Laravel-specific checks
 - **Performance:** Read `agents/perf-checker.md` for N+1, unbounded fetch, etc.
 - **Testing:** Read `agents/test-runner.md` for test framework detection
+- **Integration testing:** Read `agents/integration-tester.md` for E2E test execution
+- **Environment:** Read `agents/environment-checker.md` for dev setup validation
+- **Building:** Read `agents/builder.md` for TDD implementation
+- **Documentation:** Read `agents/docs-writer.md` for doc updates
+- **Merge conflicts:** Read `agents/merge-resolver.md` for conflict resolution
 - **Incidents:** Read `agents/incident-commander.md` for triage protocol
 - **Migrations:** Read `agents/migration-architect.md` for expand/backfill/contract
 
@@ -43,6 +50,7 @@ When asked to review, plan, or build, reference the appropriate agent definition
 For domain knowledge, read the relevant skill file:
 
 - `skills/architecture/SKILL.md` — system design patterns
+- `skills/devils-advocate/SKILL.md` — plan attack patterns, red flags
 - `skills/security/SKILL.md` — OWASP cheat sheet, input validation
 - `skills/frontend/SKILL.md` — React hooks, accessibility, performance
 - `skills/php-laravel/SKILL.md` — Eloquent, middleware, queues

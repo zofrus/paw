@@ -237,7 +237,10 @@ class Navigator:
 
     def _skip_section(self):
         current_section = self.pages[self.page]["section"]
-        section_idx = self.sections.index(current_section)
+        try:
+            section_idx = self.sections.index(current_section)
+        except ValueError:
+            return "end"
         if section_idx < len(self.sections) - 1:
             next_section = self.sections[section_idx + 1]
             self.page = self.section_starts[next_section]
@@ -248,7 +251,10 @@ class Navigator:
         return self.pages[self.page]["section"]
 
     def section_index(self):
-        return self.sections.index(self.current_section())
+        try:
+            return self.sections.index(self.current_section())
+        except ValueError:
+            return 0
 
 
 # ── Content Renderer ──────────────────────────────────
@@ -321,6 +327,8 @@ def render_footer(win, nav, rows, cols):
     hints = "[</>] Navigate  [s] Skip  [q] Quit"
     safe_addstr(win, fy, 3, hints, curses.color_pair(BOLD_WHITE))
 
+    if nav.total == 0:
+        return
     pct = int((nav.page + 1) / nav.total * 100)
     progress = f"{pct}%"
     safe_addstr(
