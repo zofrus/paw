@@ -143,6 +143,42 @@ paw/
 └── LICENSE          MIT
 ```
 
+## How it works
+
+```
+                    ┌──────────┐
+                    │   YOU    │  type a command or prompt
+                    └────┬─────┘
+                         │
+            ┌────────────┼────────────┐
+            ▼            ▼            ▼
+      ┌──────────┐ ┌──────────┐ ┌──────────┐
+      │  AGENTS  │ │  SKILLS  │ │ CONTEXTS │
+      │ 18 roles │ │  domain  │ │  mindset │
+      │  scoped  │ │  know-   │ │  modes   │
+      │  perms   │ │  ledge   │ │          │
+      └────┬─────┘ └──────────┘ └──────────┘
+           │              ▲            ▲
+           │ reference    │  loaded by │
+           ▼              │            │
+      ┌──────────┐        │            │
+      │  RULES   │────────┘────────────┘
+      │ 6 pages  │
+      └────┬─────┘
+           │ enforced by
+           ▼
+      ┌──────────┐
+      │  HOOKS   │  fire on Claude Code / git events
+      │ 4 files  │
+      └──────────┘
+```
+
+- **Agents** do the work. 18 roles, most read-only. Scoped permissions.
+- **Skills** provide domain knowledge. Agents load them for expertise.
+- **Contexts** set the mindset — building vs reviewing vs security audit.
+- **Rules** are the source of truth. Agents reference them.
+- **Hooks** enforce rules mechanically. Hard stops, not suggestions.
+
 ## Quality gates
 
 Three presets for different situations:
