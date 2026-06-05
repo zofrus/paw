@@ -47,7 +47,7 @@ Clone anywhere — `~/paw`, `~/tools/paw`, wherever. Setup detects its own locat
 
 ```
 paw setup              Check requirements, install hooks
-paw tutorial            Interactive TUI walkthrough (learn paw)
+paw tutorial            Interactive TUI walkthrough (5 tracks)
 paw tutorial --web      Open the browser-based tutorial
 paw doctor              Diagnose problems with your install
 paw init                Scaffold .paw.json config into a project
@@ -56,6 +56,12 @@ paw check --quick       Quick gate (code-reviewer only)
 paw check --thorough    Thorough gate (all 8 reviewers)
 paw gate <name>         Run a single review agent
 paw agents              List all 18 agents
+paw next                Suggested next steps based on progress
+paw suggest             Detect your stack, recommend agents
+paw cheatsheet          Print the quick reference card
+paw desktop             Create a Desktop app launcher (macOS)
+paw uninstall           Remove hooks and symlink
+paw completions         Shell tab-completion (zsh | bash)
 paw version             Show version
 ```
 
@@ -126,7 +132,7 @@ paw/
 ├── examples/        practice targets
 │   └── buggy-app/   intentionally buggy app for training
 │
-├── tests/           58 tests (hooks, navigation, content)
+├── tests/           64 tests (hooks, navigation, content)
 ├── CLAUDE.md        Claude Code integration
 ├── AGENTS.md        Codex CLI integration
 ├── .cursor/rules/   Cursor IDE integration
@@ -175,6 +181,20 @@ This creates `.paw.json` with:
 - **history** — opt-in run logging to `.paw/history.jsonl`
 
 Check `.paw.json` into version control so your team shares the config.
+
+`paw suggest` auto-detects your stack (Node.js, PHP/Laravel, Python, Go, Rust) and recommends which agents to enable.
+
+## Smart suggestions
+
+```bash
+paw next                # What should I do next?
+paw suggest             # Which agents fit my project?
+paw cheatsheet          # Quick reference card (terminal)
+```
+
+`paw next` tracks your progress and suggests the next step you haven't tried. `paw suggest` reads your project files and recommends agents. `paw cheatsheet` prints a one-screen reference card with all commands, agents, prompts, and workflows.
+
+The cheatsheet is also available as a [printable PDF](cheatsheet.html) — open in a browser and hit Cmd+P.
 
 ## Works with
 
