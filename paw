@@ -29,6 +29,7 @@ show_help() {
     printf "  ${CYAN}check${RESET}          Run standard quality gate (3 reviewers)\n"
     printf "  ${CYAN}gate${RESET} <name>    Run a single review agent\n"
     printf "  ${CYAN}agents${RESET}         List all available agents\n"
+    printf "  ${CYAN}desktop${RESET}        Create a Desktop app launcher (macOS)\n"
     printf "  ${CYAN}uninstall${RESET}      Remove hooks and symlink\n"
     printf "  ${CYAN}completions${RESET}    Output shell completions (zsh|bash)\n"
     printf "  ${CYAN}version${RESET}        Show paw version\n"
@@ -341,6 +342,75 @@ cmd_doctor() {
     printf "\n"
 }
 
+# ── Desktop launcher ───────────────────────────────────
+
+cmd_desktop() {
+    local app_path="$HOME/Desktop/paw.app"
+    local contents="$app_path/Contents"
+    local macos="$contents/MacOS"
+
+    if [ -d "$app_path" ]; then
+        printf "${YELLOW}%s already exists.${RESET}\n" "$app_path"
+        printf "Delete it first to recreate: rm -rf '%s'\n" "$app_path"
+        return 1
+    fi
+
+    mkdir -p "$macos"
+
+    # Info.plist
+    cat > "$contents/Info.plist" << PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>paw</string>
+    <key>CFBundleDisplayName</key>
+    <string>paw tutorial</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.paw.tutorial</string>
+    <key>CFBundleVersion</key>
+    <string>0.3.0</string>
+    <key>CFBundleExecutable</key>
+    <string>launch</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+</dict>
+</plist>
+PLIST
+
+    # Launch script
+    cat > "$macos/launch" << LAUNCHER
+#!/usr/bin/env bash
+PAW_DIR="$PAW_DIR"
+PORT=8042
+
+# Kill existing server on this port
+lsof -ti :"\$PORT" 2>/dev/null | xargs kill 2>/dev/null || true
+
+# First-run setup if hooks not installed
+SETTINGS="\$HOME/.claude/settings.json"
+if [ ! -f "\$SETTINGS" ] || ! grep -q "git_safety.py" "\$SETTINGS" 2>/dev/null; then
+    osascript -e 'display dialog "paw needs to install git safety hooks to your Claude Code settings. This is a one-time setup." buttons {"Cancel", "Install"} default button "Install" with title "paw setup"' 2>/dev/null
+    if [ \$? -eq 0 ]; then
+        "\$PAW_DIR/paw" setup --yes
+    fi
+fi
+
+# Start server and open browser
+python3 -m http.server "\$PORT" --directory "\$PAW_DIR" &>/dev/null &
+sleep 1
+open "http://localhost:\${PORT}/tutorial.html"
+LAUNCHER
+    chmod +x "$macos/launch"
+
+    printf "${GREEN}✓${RESET} Created ${BOLD}%s${RESET}\n\n" "$app_path"
+    printf "  Double-click it on your Desktop to launch the\n"
+    printf "  paw tutorial in your browser.\n\n"
+    printf "  ${DIM}First launch will ask to install hooks.${RESET}\n"
+    printf "  ${DIM}After that, it just opens the tutorial.${RESET}\n\n"
+}
+
 # ── Uninstall ──────────────────────────────────────────
 
 cmd_uninstall() {
@@ -454,6 +524,7 @@ case "$cmd" in
         cmd_gate "$1"
         ;;
     agents)     cmd_agents ;;
+    desktop)    cmd_desktop ;;
     uninstall)  cmd_uninstall ;;
     completions) cmd_completions "${1:-zsh}" ;;
     version|-v|--version)  cmd_version ;;
