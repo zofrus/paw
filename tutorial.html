@@ -289,7 +289,12 @@ function renderMenu() {
       <span class="time">${t.time}</span>
     </div>`;
   }
-  html += '</div>';
+  html += `</div>
+<div style="text-align:center;margin-top:1.5rem">
+  <a href="cheatsheet.html" target="_blank" style="color:var(--cyan);text-decoration:none;border:1px solid var(--border);padding:.5rem 1.2rem;border-radius:6px;font-size:.85rem">
+    📋 Quick Reference Card (printable / save as PDF)
+  </a>
+</div>`;
   app.innerHTML = html;
 }
 
