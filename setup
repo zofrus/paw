@@ -319,18 +319,75 @@ else
     fi
 fi
 
+# ── Add paw to PATH ───────────────────────────────────
+
+header "Global paw command"
+
+LOCAL_BIN="$HOME/.local/bin"
+PAW_LINK="$LOCAL_BIN/paw"
+
+if [ -L "$PAW_LINK" ] && [ "$(readlink "$PAW_LINK")" = "$PAW_DIR/paw" ]; then
+    pass_check "paw already linked to $PAW_LINK"
+elif command -v paw &>/dev/null; then
+    pass_check "paw already on PATH ($(command -v paw))"
+else
+    printf "  Add ${BOLD}paw${RESET} to your PATH so it works from any directory?\n"
+    printf "  This creates a symlink: ${DIM}%s -> %s/paw${RESET}\n\n" "$PAW_LINK" "$PAW_DIR"
+
+    if [ "$INTERACTIVE" = true ]; then
+        read -rp "  Add paw to PATH? [Y/n] " add_path
+    else
+        add_path="n"
+    fi
+
+    for arg in "$@"; do
+        if [ "$arg" = "--yes" ] || [ "$arg" = "-y" ]; then
+            add_path="y"
+        fi
+    done
+
+    if [[ ! "$add_path" =~ ^[Nn]$ ]]; then
+        mkdir -p "$LOCAL_BIN"
+        ln -sf "$PAW_DIR/paw" "$PAW_LINK"
+        pass_check "Linked: $PAW_LINK -> $PAW_DIR/paw"
+
+        # Check if ~/.local/bin is on PATH
+        if ! echo "$PATH" | grep -q "$LOCAL_BIN"; then
+            SHELL_RC=""
+            if [ -f "$HOME/.zshrc" ]; then
+                SHELL_RC="$HOME/.zshrc"
+            elif [ -f "$HOME/.bashrc" ]; then
+                SHELL_RC="$HOME/.bashrc"
+            fi
+
+            if [ -n "$SHELL_RC" ]; then
+                echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> "$SHELL_RC"
+                pass_check "Added ~/.local/bin to PATH in $(basename "$SHELL_RC")"
+                info "Run: source $SHELL_RC (or open a new terminal)"
+            else
+                warn_check "~/.local/bin is not on your PATH"
+                info "Add this to your shell config:"
+                printf "    ${BOLD}export PATH=\"\$HOME/.local/bin:\$PATH\"${RESET}\n"
+            fi
+        fi
+    else
+        info "Skipped. You can add it later:"
+        printf "    ${BOLD}ln -sf %s/paw ~/.local/bin/paw${RESET}\n" "$PAW_DIR"
+    fi
+fi
+
 # ── Next steps ─────────────────────────────────────────
 
 header "You're Ready"
 
 printf "  ${BOLD}Next steps:${RESET}\n\n"
 printf "  ${CYAN}1.${RESET} Run the interactive tutorial:\n"
-printf "     ${BOLD}./tutorial${RESET}\n\n"
+printf "     ${BOLD}paw tutorial${RESET}\n\n"
 printf "  ${CYAN}2.${RESET} Try the hooks in Claude Code:\n"
 printf "     ${DIM}Type 'git rebase main' and watch it get blocked.${RESET}\n\n"
 printf "  ${CYAN}3.${RESET} Run a review agent:\n"
-printf "     ${DIM}> Use the code-reviewer agent on the current diff.${RESET}\n\n"
-printf "  ${CYAN}4.${RESET} Using Cursor? Rules auto-loaded from .cursor/rules/\n\n"
-printf "  ${CYAN}5.${RESET} Using Codex CLI? Agent index in AGENTS.md\n\n"
-printf "  ${CYAN}6.${RESET} Read the docs:\n"
-printf "     ${DIM}agents/README.md  hooks/README.md  rules/README.md${RESET}\n\n"
+printf "     ${DIM}paw check${RESET}  ${DIM}(or: paw gate security)${RESET}\n\n"
+printf "  ${CYAN}4.${RESET} Diagnose problems:\n"
+printf "     ${BOLD}paw doctor${RESET}\n\n"
+printf "  ${CYAN}5.${RESET} Using Cursor? Rules auto-loaded from .cursor/rules/\n"
+printf "     Using Codex CLI? Agent index in AGENTS.md\n\n"

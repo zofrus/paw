@@ -29,6 +29,8 @@ show_help() {
     printf "  ${CYAN}check${RESET}          Run standard quality gate (3 reviewers)\n"
     printf "  ${CYAN}gate${RESET} <name>    Run a single review agent\n"
     printf "  ${CYAN}agents${RESET}         List all available agents\n"
+    printf "  ${CYAN}uninstall${RESET}      Remove hooks and symlink\n"
+    printf "  ${CYAN}completions${RESET}    Output shell completions (zsh|bash)\n"
     printf "  ${CYAN}version${RESET}        Show paw version\n"
     printf "  ${CYAN}help${RESET}           Show this help\n"
     printf "\n${BOLD}Quality gate presets:${RESET}\n"
@@ -339,6 +341,99 @@ cmd_doctor() {
     printf "\n"
 }
 
+# ── Uninstall ──────────────────────────────────────────
+
+cmd_uninstall() {
+    printf "${CYAN}${BOLD}paw uninstall${RESET}\n\n"
+
+    local settings="$HOME/.claude/settings.json"
+    if [ -f "$settings" ] && command -v python3 &>/dev/null; then
+        python3 -c "
+import json, sys
+path = '$settings'
+with open(path) as f:
+    s = json.load(f)
+hooks = s.get('hooks', {})
+changed = False
+for event in ['PreToolUse', 'PostToolUse']:
+    entries = hooks.get(event, [])
+    filtered = [e for e in entries if not any('paw' in h.get('command','') for h in e.get('hooks',[]))]
+    if len(filtered) != len(entries):
+        hooks[event] = filtered
+        changed = True
+if changed:
+    with open(path, 'w') as f:
+        json.dump(s, f, indent=2)
+        f.write('\n')
+    print('  Removed paw hooks from settings.json.')
+else:
+    print('  No paw hooks found in settings.json.')
+"
+    fi
+
+    local link="$HOME/.local/bin/paw"
+    if [ -L "$link" ]; then
+        rm "$link"
+        printf "  Removed symlink: %s\n" "$link"
+    fi
+
+    printf "\n  ${DIM}paw files remain at %s${RESET}\n" "$PAW_DIR"
+    printf "  ${DIM}Delete manually: rm -rf %s${RESET}\n\n" "$PAW_DIR"
+}
+
+# ── Shell completion ───────────────────────────────────
+
+cmd_completions() {
+    local shell="${1:-zsh}"
+    case "$shell" in
+        zsh)
+            cat << 'COMP'
+#compdef paw
+_paw() {
+    local -a commands
+    commands=(
+        'setup:Check requirements and install hooks'
+        'tutorial:Run the interactive tutorial'
+        'doctor:Diagnose problems with your install'
+        'init:Scaffold .paw.json config'
+        'check:Run quality gate'
+        'gate:Run a single review agent'
+        'agents:List all agents'
+        'uninstall:Remove hooks and symlink'
+        'completions:Output shell completions'
+        'version:Show version'
+        'help:Show help'
+    )
+    local -a gates
+    gates=(security bugs code perf frontend php tests docs env)
+    if (( CURRENT == 2 )); then
+        _describe 'command' commands
+    elif (( CURRENT == 3 )) && [[ "$words[2]" == "gate" ]]; then
+        _describe 'agent' gates
+    fi
+}
+compdef _paw paw
+COMP
+            ;;
+        bash)
+            cat << 'COMP'
+_paw() {
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+    local prev="${COMP_WORDS[COMP_CWORD-1]}"
+    local cmds="setup tutorial doctor init check gate agents uninstall completions version help"
+    local gates="security bugs code perf frontend php tests docs env"
+    if [ "$COMP_CWORD" -eq 1 ]; then
+        COMPREPLY=($(compgen -W "$cmds" -- "$cur"))
+    elif [ "$prev" = "gate" ]; then
+        COMPREPLY=($(compgen -W "$gates" -- "$cur"))
+    fi
+}
+complete -F _paw paw
+COMP
+            ;;
+    esac
+}
+
 # ── Dispatch ───────────────────────────────────────────
 
 cmd="${1:-help}"
@@ -346,7 +441,7 @@ shift 2>/dev/null || true
 
 case "$cmd" in
     setup)      cmd_setup "$@" ;;
-    tutorial)   cmd_tutorial ;;
+    tutorial)   cmd_tutorial "$@" ;;
     doctor)     cmd_doctor ;;
     init)       cmd_init "$@" ;;
     check)      cmd_check "$@" ;;
@@ -359,6 +454,8 @@ case "$cmd" in
         cmd_gate "$1"
         ;;
     agents)     cmd_agents ;;
+    uninstall)  cmd_uninstall ;;
+    completions) cmd_completions "${1:-zsh}" ;;
     version|-v|--version)  cmd_version ;;
     help|-h|--help)        show_help ;;
     *)

@@ -1,6 +1,6 @@
 [project]
 name = "paw"
-version = "0.2.0"
+version = "0.3.0"
 description = "Personal Agent Workflows — an AI SDLC starter kit with agents, skills, hooks, rules, and contexts."
 readme = "README.md"
 license = "MIT"
