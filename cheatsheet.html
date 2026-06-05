@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>paw — quick reference card</title>
+<style>
+  @media print {
+    body { background: white !important; color: #1a1b26 !important; }
+    .no-print { display: none !important; }
+    .card { border: 1px solid #ccc !important; page-break-inside: avoid; }
+    h3 { color: #0066cc !important; }
+    code { background: #f0f0f0 !important; color: #1a1b26 !important; }
+    .col { break-inside: avoid; }
+  }
+  :root {
+    --bg: #1a1b26; --fg: #c0caf5; --cyan: #7dcfff; --green: #9ece6a;
+    --yellow: #e0af68; --magenta: #bb9af7; --dim: #565f89;
+    --surface: #24283b; --border: #3b4261;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'SF Mono','Fira Code','JetBrains Mono',monospace; background: var(--bg); color: var(--fg); font-size: 12px; line-height: 1.5; padding: 1.5rem; }
+  h1 { color: var(--cyan); font-size: 1.4rem; text-align: center; margin-bottom: .5rem; }
+  .subtitle { color: var(--dim); text-align: center; margin-bottom: 1.5rem; font-size: .85rem; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .col { display: flex; flex-direction: column; gap: .8rem; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: .8rem; }
+  h3 { color: var(--cyan); font-size: .9rem; margin-bottom: .4rem; }
+  code { background: var(--border); padding: .1rem .3rem; border-radius: 3px; font-size: .8rem; color: var(--green); }
+  table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+  td { padding: .15rem .3rem; }
+  td:first-child { color: var(--green); white-space: nowrap; }
+  .dim { color: var(--dim); }
+  .blocked { color: #f7768e; }
+  .allowed { color: var(--green); }
+  .save-bar { text-align: center; margin: 1.5rem 0 .5rem; }
+  .save-bar button { background: var(--cyan); color: var(--bg); border: none; padding: .5rem 1.5rem; border-radius: 6px; cursor: pointer; font-family: inherit; font-weight: bold; font-size: .9rem; }
+  .save-bar button:hover { opacity: .8; }
+</style>
+</head>
+<body>
+
+<h1>paw — quick reference card</h1>
+<p class="subtitle">Personal Agent Workflows · an AI SDLC starter kit</p>
+
+<div class="save-bar no-print">
+  <button onclick="window.print()">Save as PDF (Cmd+P / Ctrl+P)</button>
+</div>
+
+<div class="grid">
+<div class="col">
+
+<div class="card">
+<h3>Setup & Health</h3>
+<table>
+<tr><td><code>paw setup</code></td><td>Install hooks + check reqs</td></tr>
+<tr><td><code>paw doctor</code></td><td>Diagnose problems</td></tr>
+<tr><td><code>paw init</code></td><td>Scaffold .paw.json config</td></tr>
+<tr><td><code>paw suggest</code></td><td>Detect stack, recommend agents</td></tr>
+<tr><td><code>paw next</code></td><td>What to try next</td></tr>
+<tr><td><code>paw desktop</code></td><td>Desktop launcher (macOS)</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Quality Gates</h3>
+<table>
+<tr><td><code>paw check --quick</code></td><td>code-reviewer only</td></tr>
+<tr><td><code>paw check</code></td><td>code + bugs + security</td></tr>
+<tr><td><code>paw check --thorough</code></td><td>all 8 reviewers</td></tr>
+<tr><td><code>paw gate security</code></td><td>OWASP Top 10</td></tr>
+<tr><td><code>paw gate bugs</code></td><td>race, off-by-one, null</td></tr>
+<tr><td><code>paw gate perf</code></td><td>N+1, unbounded fetch</td></tr>
+<tr><td><code>paw gate frontend</code></td><td>a11y, hooks, render</td></tr>
+<tr><td><code>paw gate php</code></td><td>Eloquent, CSRF, auth</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Common Prompts</h3>
+<table>
+<tr><td colspan="2"><code>Use the code-reviewer agent on the current diff.</code></td></tr>
+<tr><td colspan="2"><code>Use the security-reviewer agent to review this branch.</code></td></tr>
+<tr><td colspan="2"><code>Use the architect agent to design a solution for [task].</code></td></tr>
+<tr><td colspan="2"><code>Use the bug-auditor agent on the current diff.</code></td></tr>
+<tr><td colspan="2"><code>Use the perf-checker agent on the current diff.</code></td></tr>
+</table>
+<p class="dim" style="margin-top:.4rem">Works in: Claude Code, Cursor, Codex CLI</p>
+</div>
+
+<div class="card">
+<h3>Hooks (git guardrails)</h3>
+<table>
+<tr><td><code>git rebase</code></td><td class="blocked">BLOCKED → use git pull</td></tr>
+<tr><td><code>git push --force</code></td><td class="blocked">BLOCKED → pull then push</td></tr>
+<tr><td><code>git push --force-with-lease</code></td><td class="allowed">ALLOWED (safe alt)</td></tr>
+<tr><td><code>git reset --hard</code></td><td class="blocked">BLOCKED → use git stash</td></tr>
+<tr><td><code>git commit</code> <span class="dim">(on main)</span></td><td class="blocked">BLOCKED → feature branch</td></tr>
+</table>
+</div>
+
+</div>
+<div class="col">
+
+<div class="card">
+<h3>18 Agents by Phase</h3>
+<table>
+<tr><td>Plan</td><td>architect, planner, devils-advocate, rollback-planner</td></tr>
+<tr><td>Build</td><td>builder, merge-resolver, migration-architect</td></tr>
+<tr><td>Review</td><td>code-reviewer, bug-auditor, security-reviewer, perf-checker, fe-reviewer, php-reviewer, test-runner, integration-tester, environment-checker</td></tr>
+<tr><td>Respond</td><td>incident-commander</td></tr>
+<tr><td>Document</td><td>docs-writer</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Agent Permissions</h3>
+<table>
+<tr><td>Read-only (10)</td><td>architect, planner, devils-advocate, rollback-planner, code-reviewer, bug-auditor, security-reviewer, perf-checker, fe-reviewer, php-reviewer</td></tr>
+<tr><td>Read+Bash (3)</td><td>test-runner, integration-tester, environment-checker</td></tr>
+<tr><td>Read+Write (1)</td><td>docs-writer</td></tr>
+<tr><td>Full (4)</td><td>builder, merge-resolver, migration-architect, incident-commander</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Workflows</h3>
+<table>
+<tr><td>Plan</td><td>architect → planner → devils-advocate</td></tr>
+<tr><td>Build</td><td>builder (TDD: test first, then code)</td></tr>
+<tr><td>Review</td><td>code-reviewer + bug-auditor + security</td></tr>
+<tr><td>Ship</td><td>rollback-planner → merge-resolver</td></tr>
+<tr><td>Incident</td><td>incident-commander → rollback-planner</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>6 Rules</h3>
+<table>
+<tr><td>git-doctrine</td><td>Always merge, never rebase</td></tr>
+<tr><td>test-first</td><td>Tests before code, always</td></tr>
+<tr><td>error-handling</td><td>No silent failures</td></tr>
+<tr><td>no-secrets</td><td>Secrets in env vars only</td></tr>
+<tr><td>branch-hygiene</td><td>Feature branch per task</td></tr>
+<tr><td>security-basics</td><td>Validate input, encode output</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Learn More</h3>
+<table>
+<tr><td><code>paw tutorial</code></td><td>Interactive walkthrough (5 tracks)</td></tr>
+<tr><td><code>paw tutorial --web</code></td><td>Browser version</td></tr>
+<tr><td><code>paw cheatsheet</code></td><td>This card in the terminal</td></tr>
+<tr><td><code>paw agents</code></td><td>Full agent list</td></tr>
+</table>
+<p class="dim" style="margin-top:.4rem">github.com/zofrus/paw · github.com/zofrus/forge</p>
+</div>
+
+</div>
+</div>
+
+</body>
+</html>

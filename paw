@@ -29,6 +29,9 @@ show_help() {
     printf "  ${CYAN}check${RESET}          Run standard quality gate (3 reviewers)\n"
     printf "  ${CYAN}gate${RESET} <name>    Run a single review agent\n"
     printf "  ${CYAN}agents${RESET}         List all available agents\n"
+    printf "  ${CYAN}next${RESET}           Suggested next steps based on your progress\n"
+    printf "  ${CYAN}suggest${RESET}        Detect your stack and recommend agents\n"
+    printf "  ${CYAN}cheatsheet${RESET}     Print the quick reference card\n"
     printf "  ${CYAN}desktop${RESET}        Create a Desktop app launcher (macOS)\n"
     printf "  ${CYAN}uninstall${RESET}      Remove hooks and symlink\n"
     printf "  ${CYAN}completions${RESET}    Output shell completions (zsh|bash)\n"
@@ -504,6 +507,225 @@ COMP
     esac
 }
 
+# ── Next steps ─────────────────────────────────────────
+
+cmd_next() {
+    printf "${CYAN}${BOLD}paw next${RESET} — suggested next steps\n\n"
+    local done=0
+    local total=7
+
+    # 1. Hooks installed?
+    local settings="$HOME/.claude/settings.json"
+    if [ -f "$settings" ] && grep -q "git_safety.py" "$settings" 2>/dev/null; then
+        printf "  ${GREEN}✓${RESET} Hooks installed\n"
+        done=$((done + 1))
+    else
+        printf "  ${CYAN}→${RESET} ${BOLD}Install hooks:${RESET} paw setup\n"
+        printf "    ${DIM}Git guardrails that block rebase, force-push, commits to main.${RESET}\n\n"
+        return
+    fi
+
+    # 2. Global command?
+    if command -v paw &>/dev/null && [ "$(command -v paw)" != "$PAW_DIR/paw" ]; then
+        printf "  ${GREEN}✓${RESET} paw on PATH\n"
+        done=$((done + 1))
+    elif [ -L "$HOME/.local/bin/paw" ]; then
+        printf "  ${GREEN}✓${RESET} paw on PATH\n"
+        done=$((done + 1))
+    else
+        printf "  ${CYAN}→${RESET} ${BOLD}Add paw to PATH:${RESET} paw setup\n"
+        printf "    ${DIM}Run paw from any directory.${RESET}\n\n"
+    fi
+
+    # 3. Tried a review agent?
+    local history_marker="$PAW_DIR/.paw_used_agent"
+    if [ -f "$history_marker" ]; then
+        printf "  ${GREEN}✓${RESET} Ran a review agent\n"
+        done=$((done + 1))
+    else
+        printf "  ${CYAN}→${RESET} ${BOLD}Run a review agent:${RESET} paw check --quick\n"
+        printf "    ${DIM}See what the code-reviewer finds on your current diff.${RESET}\n\n"
+    fi
+
+    # 4. Project config?
+    if [ -f ".paw.json" ]; then
+        printf "  ${GREEN}✓${RESET} Project config (.paw.json)\n"
+        done=$((done + 1))
+    else
+        printf "  ${CYAN}→${RESET} ${BOLD}Configure for your project:${RESET} paw init\n"
+        printf "    ${DIM}Customize agents and presets for your team.${RESET}\n\n"
+    fi
+
+    # 5. Tried buggy app?
+    local buggy_marker="$PAW_DIR/.paw_tried_buggy"
+    if [ -f "$buggy_marker" ]; then
+        printf "  ${GREEN}✓${RESET} Tried the buggy app\n"
+        done=$((done + 1))
+    else
+        printf "  ${CYAN}→${RESET} ${BOLD}Practice:${RESET} paw gate security  ${DIM}(on examples/buggy-app/)${RESET}\n"
+        printf "    ${DIM}6 security holes, 4 bugs, 0 tests. How many can agents find?${RESET}\n\n"
+    fi
+
+    # 6. Stacked reviewers?
+    local stack_marker="$PAW_DIR/.paw_stacked"
+    if [ -f "$stack_marker" ]; then
+        printf "  ${GREEN}✓${RESET} Stacked multiple reviewers\n"
+        done=$((done + 1))
+    else
+        printf "  ${CYAN}→${RESET} ${BOLD}Stack 3 reviewers:${RESET} paw check\n"
+        printf "    ${DIM}code-reviewer + bug-auditor + security-reviewer.${RESET}\n\n"
+    fi
+
+    # 7. Full workflow?
+    local workflow_marker="$PAW_DIR/.paw_workflow"
+    if [ -f "$workflow_marker" ]; then
+        printf "  ${GREEN}✓${RESET} Ran the full workflow\n"
+        done=$((done + 1))
+    else
+        printf "  ${CYAN}→${RESET} ${BOLD}Full workflow:${RESET} architect → planner → devils-advocate → builder → code-reviewer\n"
+        printf "    ${DIM}The complete plan-critique-build-review cycle.${RESET}\n\n"
+    fi
+
+    printf "\n  ${DIM}Progress: %d/%d${RESET}\n\n" "$done" "$total"
+}
+
+# ── Suggest ────────────────────────────────────────────
+
+cmd_suggest() {
+    printf "${CYAN}${BOLD}paw suggest${RESET} — agents for this project\n\n"
+
+    local dir="${1:-.}"
+    local agents_on=""
+    local agents_off=""
+
+    # Detect stack
+    if [ -f "$dir/package.json" ]; then
+        printf "  ${GREEN}Detected:${RESET} Node.js / JavaScript project\n"
+        if grep -q "react\|next\|vue\|angular\|svelte" "$dir/package.json" 2>/dev/null; then
+            printf "  ${GREEN}Detected:${RESET} Frontend framework\n"
+            agents_on="architect planner devils-advocate code-reviewer bug-auditor security-reviewer perf-checker fe-reviewer test-runner builder docs-writer"
+            agents_off="php-reviewer migration-architect"
+        else
+            agents_on="architect planner devils-advocate code-reviewer bug-auditor security-reviewer perf-checker test-runner builder docs-writer"
+            agents_off="php-reviewer fe-reviewer migration-architect"
+        fi
+    elif [ -f "$dir/composer.json" ]; then
+        printf "  ${GREEN}Detected:${RESET} PHP project\n"
+        if grep -q "laravel" "$dir/composer.json" 2>/dev/null; then
+            printf "  ${GREEN}Detected:${RESET} Laravel framework\n"
+        fi
+        agents_on="architect planner devils-advocate code-reviewer bug-auditor security-reviewer perf-checker php-reviewer test-runner builder migration-architect docs-writer"
+        agents_off="fe-reviewer"
+    elif [ -f "$dir/pyproject.toml" ] || [ -f "$dir/setup.py" ] || [ -f "$dir/requirements.txt" ]; then
+        printf "  ${GREEN}Detected:${RESET} Python project\n"
+        agents_on="architect planner devils-advocate code-reviewer bug-auditor security-reviewer perf-checker test-runner builder docs-writer"
+        agents_off="php-reviewer fe-reviewer"
+    elif [ -f "$dir/go.mod" ]; then
+        printf "  ${GREEN}Detected:${RESET} Go project\n"
+        agents_on="architect planner devils-advocate code-reviewer bug-auditor security-reviewer perf-checker test-runner builder docs-writer"
+        agents_off="php-reviewer fe-reviewer"
+    elif [ -f "$dir/Cargo.toml" ]; then
+        printf "  ${GREEN}Detected:${RESET} Rust project\n"
+        agents_on="architect planner devils-advocate code-reviewer bug-auditor security-reviewer perf-checker test-runner builder docs-writer"
+        agents_off="php-reviewer fe-reviewer"
+    else
+        printf "  ${YELLOW}Could not detect project type.${RESET}\n"
+        printf "  ${DIM}Showing all agents. Run from your project root.${RESET}\n\n"
+        agents_on="architect planner devils-advocate code-reviewer bug-auditor security-reviewer perf-checker test-runner builder docs-writer"
+        agents_off="php-reviewer fe-reviewer"
+    fi
+
+    # Check for database files
+    if [ -f "$dir/migrations" ] || ls "$dir"/**/migrations/ &>/dev/null 2>&1 || grep -rq "migration\|alembic\|knex\|prisma" "$dir" --include="*.json" --include="*.toml" 2>/dev/null; then
+        printf "  ${GREEN}Detected:${RESET} Database migrations\n"
+        agents_on="$agents_on migration-architect rollback-planner"
+    fi
+
+    printf "\n  ${BOLD}Recommended agents:${RESET}\n"
+    for a in $agents_on; do
+        printf "    ${GREEN}✓${RESET} %s\n" "$a"
+    done
+
+    if [ -n "$agents_off" ]; then
+        printf "\n  ${BOLD}Skip for this project:${RESET}\n"
+        for a in $agents_off; do
+            printf "    ${DIM}✗ %s${RESET}\n" "$a"
+        done
+    fi
+
+    printf "\n  ${DIM}Run: paw init${RESET}  ${DIM}to save this config to .paw.json${RESET}\n\n"
+}
+
+# ── Cheatsheet ─────────────────────────────────────────
+
+cmd_cheatsheet() {
+    printf "${CYAN}${BOLD}"
+    cat << 'SHEET'
+┌─────────────────────────────────────────────────────────────────┐
+│              paw — quick reference card                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  SETUP                                                          │
+│    paw setup             install hooks + check requirements     │
+│    paw doctor            diagnose problems                      │
+│    paw desktop           create Desktop launcher (macOS)        │
+│    paw init              scaffold .paw.json for your project    │
+│    paw suggest           detect stack + recommend agents        │
+│    paw next              see what to try next                   │
+│                                                                 │
+│  QUALITY GATES                                                  │
+│    paw check --quick     code-reviewer only                     │
+│    paw check             code + bugs + security (default)       │
+│    paw check --thorough  all 8 reviewers                        │
+│    paw gate <name>       single agent (security, bugs, perf...) │
+│                                                                 │
+│  LEARN                                                          │
+│    paw tutorial          TUI walkthrough (5 tracks)             │
+│    paw tutorial --web    browser version                        │
+│    paw cheatsheet        this card                              │
+│    paw agents            list all 18 agents                     │
+│                                                                 │
+│  COMMON PROMPTS (paste into Claude Code / Cursor / Codex)       │
+│    > Use the code-reviewer agent on the current diff.           │
+│    > Use the security-reviewer agent to review this branch.     │
+│    > Use the architect agent to design a solution for [task].   │
+│    > Use the bug-auditor agent on the current diff.             │
+│    > Use the perf-checker agent on the current diff.            │
+│                                                                 │
+│  WORKFLOWS                                                      │
+│    Plan:    architect → planner → devils-advocate                │
+│    Build:   builder (writes test first, then code)              │
+│    Review:  code-reviewer + bug-auditor + security-reviewer     │
+│    Ship:    rollback-planner → merge-resolver                   │
+│    Oops:    incident-commander → rollback-planner               │
+│                                                                 │
+│  AGENT PERMISSIONS                                              │
+│    Read-only (10)   architect planner devils-advocate            │
+│                     code-reviewer bug-auditor security-reviewer  │
+│                     perf-checker fe-reviewer php-reviewer        │
+│                     rollback-planner                             │
+│    Read+Bash (3)    test-runner integration-tester env-checker   │
+│    Read+Write (1)   docs-writer                                 │
+│    Full (4)         builder merge-resolver migration-architect   │
+│                     incident-commander                           │
+│                                                                 │
+│  HOOKS (block dangerous git operations)                         │
+│    git rebase          → BLOCKED (use git pull origin <branch>) │
+│    git push --force    → BLOCKED (use git pull then push)       │
+│    git push --force-with-lease → ALLOWED (safe alternative)     │
+│    git reset --hard    → BLOCKED (use git stash)                │
+│    git commit (on main)→ BLOCKED (create a feature branch)      │
+│                                                                 │
+│  RULES                                                          │
+│    git-doctrine     test-first       error-handling             │
+│    no-secrets       branch-hygiene   security-basics            │
+│                                                                 │
+│  github.com/zofrus/paw     github.com/zofrus/forge             │
+└─────────────────────────────────────────────────────────────────┘
+SHEET
+    printf "${RESET}"
+}
+
 # ── Dispatch ───────────────────────────────────────────
 
 cmd="${1:-help}"
@@ -524,6 +746,9 @@ case "$cmd" in
         cmd_gate "$1"
         ;;
     agents)     cmd_agents ;;
+    next)       cmd_next ;;
+    suggest)    cmd_suggest "$@" ;;
+    cheatsheet) cmd_cheatsheet ;;
     desktop)    cmd_desktop ;;
     uninstall)  cmd_uninstall ;;
     completions) cmd_completions "${1:-zsh}" ;;
