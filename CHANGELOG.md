@@ -1,10 +1,32 @@
 # Changelog
 
+## 0.3.0 — 2026-06-05
+
+### Added
+- `paw` CLI with commands: setup, tutorial, doctor, init, check, gate, agents, uninstall, completions, version
+- Multi-track tutorial library with selector (5 tracks: Learn, Getting Started, CLI, Advanced, Practice)
+- Quality gate presets: --quick (1 agent), standard (3), --thorough (8)
+- `paw init` scaffolds .paw.json team config into any project
+- `paw doctor` diagnoses install health
+- `paw uninstall` cleanly removes hooks and symlink
+- Shell tab-completion for zsh and bash (`paw completions zsh`)
+- Global `paw` command via symlink to ~/.local/bin (setup offers)
+- Example buggy app (examples/buggy-app/) with 6 security holes, 4 bugs, N+1 query
+- Static HTML tutorial (tutorial.html) with dark theme and sidebar
+- Pre-commit framework integration (.pre-commit-hooks.yaml)
+- Quality gate preset docs (skills/quality-gate/presets/)
+- 64 tests (up from 58)
+
+### Changed
+- Tutorial restructured from single-track (17 pages) to 5-track library (32 pages total)
+- README completely rewritten for full feature coverage
+- Setup now offers to add `paw` to PATH via symlink
+
 ## 0.2.0 — 2026-06-04
 
 ### Added
 - 6 new agents: merge-resolver, migration-architect, incident-commander, rollback-planner, integration-tester, environment-checker (18 total)
-- Interactive TUI tutorial with sidebar navigation, bordered layout, ASCII art, typewriter and slide-in animations (17 pages, 7 sections)
+- Interactive TUI tutorial with sidebar navigation, bordered layout, ASCII art, typewriter and slide-in animations
 - "The Key Distinction" page with color-coded comparison table (agents vs skills vs hooks)
 - "What Is An Agent, Really?" page demystifying the term for non-technical audience
 - Post-tutorial info screen with step-by-step next actions
@@ -18,6 +40,7 @@
 - git_safety.py: multi-line commands can no longer bypass regex patterns
 - git_safety.py: `git checkout .` with chained commands now blocked
 - branch_guard.py: fail-closed when git rev-parse fails (was fail-open)
+- branch_guard.py: parses `git -C <dir>` and checks the correct repo
 - auto_test_detect.sh: JSON output properly escaped via python3 json.dumps
 - Setup script: eliminated heredoc injection vulnerability
 - Setup script: non-interactive mode no longer auto-installs without --yes flag
