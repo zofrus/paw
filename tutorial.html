@@ -6,349 +6,346 @@
 <title>paw — Personal Agent Workflows</title>
 <style>
   :root {
-    --bg: #1a1b26;
-    --fg: #c0caf5;
-    --cyan: #7dcfff;
-    --green: #9ece6a;
-    --yellow: #e0af68;
-    --magenta: #bb9af7;
-    --red: #f7768e;
-    --dim: #565f89;
-    --surface: #24283b;
-    --border: #3b4261;
+    --bg: #1a1b26; --fg: #c0caf5; --cyan: #7dcfff; --green: #9ece6a;
+    --yellow: #e0af68; --magenta: #bb9af7; --red: #f7768e;
+    --dim: #565f89; --surface: #24283b; --border: #3b4261;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace;
-    background: var(--bg);
-    color: var(--fg);
-    line-height: 1.6;
-    min-height: 100vh;
-  }
-  .container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem;
-  }
-  .page {
-    display: none;
-    animation: fadeIn 0.3s ease-in;
-  }
+  body { font-family: 'SF Mono','Fira Code','JetBrains Mono',monospace; background: var(--bg); color: var(--fg); line-height: 1.6; }
+  .container { max-width: 880px; margin: 0 auto; padding: 2rem; }
+  .page { display: none; animation: fadeIn .3s ease-in; }
   .page.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  h1 { color: var(--cyan); font-size: 1.5rem; margin-bottom: 0.5rem; }
-  h2 { color: var(--cyan); font-size: 1.2rem; margin: 1.5rem 0 0.5rem; }
-  .underline { color: var(--cyan); margin-bottom: 1.5rem; }
-  pre {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1rem;
-    overflow-x: auto;
-    margin: 1rem 0;
-    font-size: 0.85rem;
-  }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  h1 { color: var(--cyan); font-size: 1.4rem; margin-bottom: .3rem; }
+  h2 { color: var(--cyan); font-size: 1.1rem; margin: 1.2rem 0 .4rem; }
+  .underline { color: var(--cyan); margin-bottom: 1.2rem; }
+  pre { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: .8rem 0; font-size: .82rem; }
   .art { color: var(--cyan); }
-  .highlight-green { color: var(--green); font-weight: bold; }
-  .highlight-yellow { color: var(--yellow); font-weight: bold; }
-  .highlight-magenta { color: var(--magenta); font-weight: bold; }
-  .highlight-red { color: var(--red); }
+  .g { color: var(--green); font-weight: bold; }
+  .y { color: var(--yellow); font-weight: bold; }
+  .m { color: var(--magenta); }
+  .r { color: var(--red); }
   .dim { color: var(--dim); }
-  table {
-    border-collapse: collapse;
-    margin: 1rem 0;
-    width: 100%;
-  }
-  th { color: var(--cyan); text-align: left; padding: 0.5rem; border-bottom: 2px solid var(--border); }
-  td { padding: 0.5rem; border-bottom: 1px solid var(--border); }
+  table { border-collapse: collapse; margin: .8rem 0; width: 100%; }
+  th { color: var(--cyan); text-align: left; padding: .4rem .6rem; border-bottom: 2px solid var(--border); }
+  td { padding: .4rem .6rem; border-bottom: 1px solid var(--border); }
   tr:nth-child(even) td { background: var(--surface); }
-  .nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 0;
-    border-top: 1px solid var(--border);
-    margin-top: 2rem;
-    position: sticky;
-    bottom: 0;
-    background: var(--bg);
-  }
-  .nav button {
-    background: var(--surface);
-    color: var(--cyan);
-    border: 1px solid var(--border);
-    padding: 0.5rem 1.5rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 0.9rem;
-  }
+  .nav { display: flex; justify-content: space-between; align-items: center; padding: .8rem 0; border-top: 1px solid var(--border); margin-top: 1.5rem; position: sticky; bottom: 0; background: var(--bg); }
+  .nav button { background: var(--surface); color: var(--cyan); border: 1px solid var(--border); padding: .4rem 1.2rem; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: .85rem; }
   .nav button:hover { background: var(--border); }
-  .nav button:disabled { opacity: 0.3; cursor: default; }
-  .progress { color: var(--dim); font-size: 0.85rem; }
-  .sidebar {
-    position: fixed;
-    left: 1rem;
-    top: 2rem;
-    width: 160px;
-    font-size: 0.8rem;
-  }
-  .sidebar-item { padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer; }
+  .nav button:disabled { opacity: .3; cursor: default; }
+  .progress { color: var(--dim); font-size: .82rem; }
+  .sidebar { position: fixed; left: 1rem; top: 2rem; width: 160px; font-size: .78rem; }
+  .sidebar-item { padding: .2rem .5rem; border-radius: 4px; cursor: pointer; }
   .sidebar-item:hover { background: var(--surface); }
   .sidebar-item.active { background: var(--cyan); color: var(--bg); font-weight: bold; }
   .sidebar-item.done { color: var(--green); }
-  .sidebar-label { color: var(--cyan); font-weight: bold; margin-bottom: 0.5rem; font-size: 0.75rem; letter-spacing: 0.1em; }
-  .logo { text-align: center; margin: 2rem 0; }
-  @media (max-width: 1100px) { .sidebar { display: none; } }
+  .sidebar-label { color: var(--cyan); font-weight: bold; margin-bottom: .4rem; font-size: .7rem; letter-spacing: .1em; }
+  .logo { text-align: center; margin: 1.5rem 0; }
+  .track-select { display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0; }
+  .track-card { background: var(--surface); border: 2px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; cursor: pointer; transition: border-color .2s, transform .1s; }
+  .track-card:hover { border-color: var(--cyan); transform: translateX(4px); }
+  .track-card h3 { color: var(--cyan); margin: 0 0 .3rem; font-size: 1rem; }
+  .track-card p { color: var(--dim); margin: 0; font-size: .82rem; }
+  .track-card .time { color: var(--green); font-size: .75rem; }
+  .back-btn { background: none; border: 1px solid var(--border); color: var(--dim); padding: .3rem .8rem; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: .8rem; margin-bottom: 1rem; }
+  .back-btn:hover { color: var(--cyan); border-color: var(--cyan); }
+  @media (max-width:1100px) { .sidebar { display: none; } }
 </style>
 </head>
 <body>
-
 <div class="sidebar" id="sidebar"></div>
-
-<div class="container">
-
-<!-- Page 0 -->
-<div class="page active" data-section="Welcome">
-<div class="logo">
-<pre class="art">
-        _______________
-       /               \
+<div class="container" id="app"></div>
+<script>
+const TRACKS = {
+learn: {
+  title: "Learn paw", desc: "What paw is, the 5 components, concepts", time: "~5 min",
+  sections: ["Welcome","The Problem","Components","Agents","Hooks & Rules"],
+  pages: [
+    {s:"Welcome",t:"Welcome to paw",art:`        _______________
+       /               \\
       |  ┌───┐ ┌───┐  |
       |  │ ● │ │ ● │  |
       |  └───┘ └───┘  |
       |      ___      |
-      |     /   \     |
+      |     /   \\     |
       |    | === |    |
-       \   \_____/   /
-        \___________/
-         /    |    \
+       \\   \\_____/   /
+        \\___________/
+         /    |    \\
         *     *     *
 
      p a w
      Personal Agent Workflows
-     an AI SDLC starter kit
-</pre>
-</div>
-<p>Your AI agent writes code fast.<br>paw makes sure it writes code <strong>right</strong>.</p>
-<p class="dim" style="margin-top:1rem">This tutorial takes about 5 minutes.</p>
-</div>
+     an AI SDLC starter kit`,body:"Your AI agent writes code fast.<br>paw makes sure it writes code <strong>right</strong>."},
+    {s:"The Problem",t:"The Problem",body:`<pre>  You:    "Add a login endpoint"
 
-<!-- Page 1 -->
-<div class="page" data-section="Welcome">
-<h1>What You'll Learn</h1>
-<div class="underline">────────────────────</div>
-<ol style="padding-left:1.5rem">
-  <li>Why your AI agent needs standards</li>
-  <li>The 5 components of paw: agents, skills, hooks, rules, contexts</li>
-  <li>How hooks mechanically block bad operations</li>
-  <li>How to run specialized review agents</li>
-  <li>How to start using paw today (Claude Code, Cursor, or Codex CLI)</li>
-</ol>
-</div>
+  AI:     <span class="g">+ Wrote the endpoint</span>
+          <span class="g">+ Handles POST /login</span>
+          <span class="g">+ Returns a JWT</span>
 
-<!-- Page 2 -->
-<div class="page" data-section="The Problem">
-<h1>The Problem</h1>
-<div class="underline">────────────────────</div>
-<pre>
-  You:    "Add a login endpoint"
-
-  AI:     <span class="highlight-green">+ Wrote the endpoint</span>
-          <span class="highlight-green">+ Handles POST /login</span>
-          <span class="highlight-green">+ Returns a JWT</span>
-
-          <span class="highlight-yellow">- No rate limiting</span>
-          <span class="highlight-yellow">- No brute-force protection</span>
-          <span class="highlight-yellow">- Logs the password in plaintext</span>
-          <span class="highlight-yellow">- JWT secret is hardcoded</span>
-          <span class="highlight-yellow">- No test</span>
-</pre>
-<p>The AI did what you asked.<br>The problem is what you <strong>didn't</strong> ask.</p>
-</div>
-
-<!-- Page 3 -->
-<div class="page" data-section="The Problem">
-<h1>Two Choices</h1>
-<div class="underline">────────────────────</div>
-<p><strong>OPTION A:</strong><br>You review everything the AI writes.<br>You are now a full-time AI babysitter.<br>That doesn't scale.</p>
-<br>
-<p><strong>OPTION B:</strong><br>You teach the AI your standards, and build a system that enforces them BEFORE the code reaches you.</p>
-<br>
-<p class="highlight-green">paw is Option B.</p>
-</div>
-
-<!-- Page 4 -->
-<div class="page" data-section="Components">
-<h1>The Key Distinction</h1>
-<div class="underline">────────────────────</div>
-<table>
-  <tr><th></th><th>AGENTS</th><th>SKILLS</th><th>HOOKS</th></tr>
-  <tr><td>What</td><td>AI actors</td><td>Knowledge</td><td>Scripts</td></tr>
-  <tr><td>Has AI?</td><td>Yes</td><td>No (teaches)</td><td>No (enforces)</td></tr>
-  <tr><td>Decides?</td><td>Yes — judgment</td><td>No — informs</td><td>No — reacts</td></tr>
-  <tr><td>Runs</td><td>On dispatch</td><td>When loaded</td><td>On events</td></tr>
-  <tr><td>Can fail</td><td>Yes (retry)</td><td>N/A</td><td>Yes (blocks)</td></tr>
-  <tr><td>Count</td><td>18</td><td>7</td><td>4</td></tr>
-  <tr><td>Lives in</td><td>agents/</td><td>skills/</td><td>hooks/</td></tr>
-</table>
-<p>Agents without skills are smart but uninformed.<br>Skills without agents are knowledge with no one to use it.<br>Hooks without either still enforce the rules — that's the point.</p>
-</div>
-
-<!-- Page 5 -->
-<div class="page" data-section="Components">
-<h1>What Is An Agent, Really?</h1>
-<div class="underline">────────────────────</div>
-<p>An agent is an LLM given a job. Whether it's on your laptop, in a company product, or in an enterprise platform — the concept is the same:</p>
-<table>
-  <tr><td class="highlight-green">MODEL</td><td>An LLM (Claude, GPT, etc.)</td></tr>
-  <tr><td class="highlight-green">CONTEXT</td><td>What it knows about the task</td></tr>
-  <tr><td class="highlight-green">PERSONA</td><td>How it behaves (reviewer, builder)</td></tr>
-  <tr><td class="highlight-green">SCOPE</td><td>What it's allowed to touch</td></tr>
-  <tr><td class="highlight-green">RULES</td><td>What standards it follows</td></tr>
-  <tr><td class="highlight-green">TOOLS</td><td>What actions it can take</td></tr>
-</table>
-<p>paw's agents are markdown files that define all six. No magic. No framework. Just a scoped LLM with a clear job description.</p>
-</div>
-
-<!-- Page 6 -->
-<div class="page" data-section="Agents">
-<h1>18 Agents, 5 Phases</h1>
-<div class="underline">────────────────────</div>
-<table>
-  <tr><th>Phase</th><th>Agents</th></tr>
-  <tr><td>Plan</td><td>architect, planner, devils-advocate, rollback-planner</td></tr>
-  <tr><td>Build</td><td>builder, merge-resolver, migration-architect</td></tr>
-  <tr><td>Review</td><td>code-reviewer, bug-auditor, security-reviewer, perf-checker, fe-reviewer, php-reviewer, test-runner, integration-tester, environment-checker</td></tr>
-  <tr><td>Respond</td><td>incident-commander</td></tr>
-  <tr><td>Document</td><td>docs-writer</td></tr>
-</table>
-<p>14 of 18 agents have restricted permissions. Trust through structural limitation.</p>
-</div>
-
-<!-- Page 7 -->
-<div class="page" data-section="Hooks & Rules">
-<h1>Hooks: Mechanical Enforcement</h1>
-<div class="underline">────────────────────</div>
-<pre>
-  You type:  <span class="highlight-yellow">git rebase main</span>
+          <span class="y">- No rate limiting</span>
+          <span class="y">- No brute-force protection</span>
+          <span class="y">- Logs the password in plaintext</span>
+          <span class="y">- JWT secret is hardcoded</span>
+          <span class="y">- No test</span></pre>The AI did what you asked. The problem is what you <strong>didn't</strong> ask.`},
+    {s:"The Problem",t:"Two Choices",body:`<p><strong>OPTION A:</strong> You review everything the AI writes. You are now a full-time AI babysitter. That doesn't scale.</p><br><p><strong>OPTION B:</strong> You teach the AI your standards, and build a system that enforces them BEFORE the code reaches you.</p><br><p class="g">paw is Option B.</p>`},
+    {s:"Components",t:"The Key Distinction",body:`<table><tr><th></th><th>AGENTS</th><th>SKILLS</th><th>HOOKS</th></tr>
+<tr><td>What</td><td>AI actors</td><td>Knowledge</td><td>Scripts</td></tr>
+<tr><td>Has AI?</td><td>Yes</td><td>No (teaches)</td><td>No (enforces)</td></tr>
+<tr><td>Decides?</td><td>Yes — judgment</td><td>No — informs</td><td>No — reacts</td></tr>
+<tr><td>Runs</td><td>On dispatch</td><td>When loaded</td><td>On events</td></tr>
+<tr><td>Can fail</td><td>Yes (retry)</td><td>N/A</td><td>Yes (blocks)</td></tr>
+<tr><td>Count</td><td>18</td><td>7</td><td>4</td></tr>
+<tr><td>Lives in</td><td>agents/</td><td>skills/</td><td>hooks/</td></tr></table>
+<p>Agents without skills are smart but uninformed. Skills without agents are knowledge with no one to use it. Hooks without either still enforce the rules — that's the point.</p>`},
+    {s:"Components",t:"What Is An Agent, Really?",body:`<p>An agent is an LLM given a job. Same concept on your laptop, in a company product, or in an enterprise platform:</p>
+<table><tr><td class="g">MODEL</td><td>An LLM (Claude, GPT, etc.)</td></tr>
+<tr><td class="g">CONTEXT</td><td>What it knows about the task</td></tr>
+<tr><td class="g">PERSONA</td><td>How it behaves (reviewer, builder)</td></tr>
+<tr><td class="g">SCOPE</td><td>What it's allowed to touch</td></tr>
+<tr><td class="g">RULES</td><td>What standards it follows</td></tr>
+<tr><td class="g">TOOLS</td><td>What actions it can take</td></tr></table>
+<p>paw's agents are markdown files that define all six. No magic.</p>`},
+    {s:"Agents",t:"18 Agents, 5 Phases",body:`<table><tr><th>Phase</th><th>Agents</th></tr>
+<tr><td>Plan</td><td>architect, planner, devils-advocate, rollback-planner</td></tr>
+<tr><td>Build</td><td>builder, merge-resolver, migration-architect</td></tr>
+<tr><td>Review</td><td>code-reviewer, bug-auditor, security-reviewer, perf-checker, fe-reviewer, php-reviewer, test-runner, integration-tester, environment-checker</td></tr>
+<tr><td>Respond</td><td>incident-commander</td></tr>
+<tr><td>Document</td><td>docs-writer</td></tr></table>
+<p>14 of 18 agents have restricted permissions. Trust through structural limitation.</p>`},
+    {s:"Agents",t:"Trust Through Structural Limitation",body:`<table><tr><th>Tier</th><th>Count</th><th>Can do</th></tr>
+<tr><td class="g">Read-only</td><td>10</td><td>Look and report. Cannot modify.</td></tr>
+<tr><td class="y">Read+Bash</td><td>3</td><td>Run tests. Cannot edit code.</td></tr>
+<tr><td class="m">Read+Write</td><td>1</td><td>Edit docs. Cannot run commands.</td></tr>
+<tr><td class="r">Full</td><td>4</td><td>Full power. Isolated.</td></tr></table>`},
+    {s:"Hooks & Rules",t:"Hooks: Mechanical Enforcement",body:`<pre>  You type:  <span class="y">git rebase main</span>
 
   ┌────────────────────────────────────────────┐
   │  hooks/git_safety.py fires                 │
   │                                            │
-  │  <span class="highlight-red">&gt;&gt;&gt; BLOCKED &lt;&lt;&lt;</span>                            │
+  │  <span class="r">&gt;&gt;&gt; BLOCKED &lt;&lt;&lt;</span>                            │
   │                                            │
   │  'git rebase rewrites published history.   │
   │   Use git pull origin &lt;branch&gt; instead.'   │
   │                                            │
   │  The command <strong>NEVER</strong> executes.               │
-  └────────────────────────────────────────────┘
-</pre>
-<p>Hooks don't suggest. They <strong>block</strong>.</p>
-</div>
-
-<!-- Page 8 -->
-<div class="page" data-section="Getting Started">
-<h1>Install in 2 Minutes</h1>
-<div class="underline">────────────────────</div>
-<pre>
-  <span class="dim"># Clone anywhere you want</span>
+  └────────────────────────────────────────────┘</pre><p>Hooks don't suggest. They <strong>block</strong>.</p>`},
+    {s:"Hooks & Rules",t:"Rules: Standards as Doctrine",body:`<p>6 rules. Each a markdown file. Enforced, not suggested.</p>
+<table><tr><th>Rule</th><th>What it enforces</th></tr>
+<tr><td>git-doctrine</td><td>Always merge, never rebase</td></tr>
+<tr><td>test-first</td><td>Tests before code, always</td></tr>
+<tr><td>error-handling</td><td>No silent failures, ever</td></tr>
+<tr><td>no-secrets-in-code</td><td>Secrets in env vars only</td></tr>
+<tr><td>branch-hygiene</td><td>Feature branch per task</td></tr>
+<tr><td>security-basics</td><td>Validate input, encode output</td></tr></table>`},
+  ]
+},
+start: {
+  title: "Getting Started", desc: "Install hooks, run agents, hands-on", time: "~5 min",
+  sections: ["Setup","Try Hooks","Try Agents","What's Next"],
+  pages: [
+    {s:"Setup",t:"Install in 2 Minutes",body:`<pre>  <span class="dim"># Clone anywhere</span>
   git clone https://github.com/zofrus/paw ~/paw
   cd ~/paw
 
-  <span class="dim"># Setup checks requirements and installs hooks</span>
-  ./setup
+  <span class="dim"># Run setup</span>
+  ./paw setup</pre><p>Setup checks Python, git, terminal. Installs hooks with the correct paths. Backs up settings. Detects clone path automatically.</p>`},
+    {s:"Try Hooks",t:"Test the Hooks",body:`<p>Open Claude Code and type:</p><pre>  > run git rebase main</pre><p><span class="r">BLOCKED</span> — "git rebase rewrites published history."</p><pre>  > run git push --force origin main</pre><p><span class="r">BLOCKED</span> — "Force-push overwrites remote history."</p><pre>  > run git push --force-with-lease origin feat</pre><p><span class="g">ALLOWED</span> — safe alternative to --force.</p>`},
+    {s:"Try Agents",t:"Run a Review Agent",body:`<p>Make sure you have a diff, then type:</p><pre>  > Use the code-reviewer agent on the current diff.</pre><p>Now stack three reviewers:</p><pre>  > Use the code-reviewer, bug-auditor, and
+    security-reviewer agents on the current diff.</pre><p>Or use the CLI: <code>paw check</code></p><p>Three independent perspectives. Each catches different things.</p>`},
+    {s:"What's Next",t:"What's Next",body:`<p><strong class="g">TODAY:</strong> Keep the hooks on. Run an agent.</p>
+<p><strong class="g">THIS WEEK:</strong> <code>paw check</code> on your next PR.</p>
+<p><strong class="g">NEXT WEEK:</strong> architect → planner → devils-advocate → builder → code-reviewer</p>
+<p><strong class="g">WHEN READY:</strong> Graduate to <a href="https://github.com/zofrus/forge" style="color:var(--cyan)">forge</a> (46 agents, 15 parallel gates).</p>`},
+  ]
+},
+cli: {
+  title: "The paw CLI", desc: "Commands, presets, init, doctor", time: "~3 min",
+  sections: ["Overview","Quality Gates","Config & Health"],
+  pages: [
+    {s:"Overview",t:"The paw CLI",body:`<pre>  paw setup          install hooks + check reqs
+  paw tutorial        TUI walkthrough
+  paw tutorial --web  browser tutorial
+  paw doctor          diagnose your install
+  paw init            scaffold .paw.json config
+  paw check           run quality gate
+  paw gate &lt;name&gt;    run a single agent
+  paw agents          list all 18 agents
+  paw desktop         create Desktop launcher (macOS)
+  paw uninstall       remove hooks + symlink
+  paw completions     shell tab-completion</pre>`},
+    {s:"Quality Gates",t:"Quality Gate Presets",body:`<table><tr><th>Command</th><th>Agents</th><th>When</th></tr>
+<tr><td><code>paw check --quick</code></td><td>code-reviewer</td><td>Fast feedback</td></tr>
+<tr><td><code>paw check</code></td><td>code + bugs + security</td><td>Before code review</td></tr>
+<tr><td><code>paw check --thorough</code></td><td>All 8 reviewers</td><td>Before merging</td></tr></table>
+<p>Single agent: <code>paw gate security</code>, <code>paw gate bugs</code>, <code>paw gate perf</code></p>`},
+    {s:"Config & Health",t:"paw init + paw doctor",body:`<p><strong>paw init</strong> — scaffold team config:</p><pre>  paw init</pre><p>Creates .paw.json with agents.enabled, agents.disabled, quality_gate presets. Check it into version control.</p>
+<br><p><strong>paw doctor</strong> — diagnose issues:</p><pre>  paw doctor</pre><p>Checks Python, hooks, settings.json, agent files, self-test, test suite. Tells you exactly what's wrong.</p>`},
+  ]
+},
+advanced: {
+  title: "Advanced Tactics", desc: "Workflows, team config, customization", time: "~4 min",
+  sections: ["Workflows","Customizing","Scaling Up"],
+  pages: [
+    {s:"Workflows",t:"The Full Workflow",body:`<pre>  1. Use the <span class="g">architect</span> agent to design a solution.
+  2. Use the <span class="g">planner</span> agent to make an impl plan.
+  3. Use the <span class="y">devils-advocate</span> to critique the plan.
+  4. Use the <span class="g">builder</span> agent to implement.
+  5. Use the <span class="m">code-reviewer</span> agent to review.</pre><p>The devil's advocate attacks the plan BEFORE any code is written.</p>`},
+    {s:"Workflows",t:"Incident Response",body:`<pre>  1. Use the <span class="r">incident-commander</span> agent.
+     Stop bleeding > root cause > prevent.
 
-  <span class="dim"># Or use the CLI</span>
-  ./paw setup
-</pre>
-<p>Setup detects the clone path automatically. No hardcoded paths.</p>
-<h2>Then try it:</h2>
-<pre>
-  <span class="dim"># Run the TUI tutorial</span>
-  ./paw tutorial
+  2. Use the <span class="y">rollback-planner</span> agent.
+     Every fix needs a way back.
 
-  <span class="dim"># Run a quality check</span>
-  ./paw check
+  3. Use the <span class="g">environment-checker</span> agent.
+     Verify the fix actually worked.</pre>`},
+    {s:"Customizing",t:"Add Your Own Rule",body:`<pre>  # rules/your-rule.md
 
-  <span class="dim"># See all agents</span>
-  ./paw agents
-</pre>
-</div>
+  <span class="g">**Statement:**</span> One sentence.
+  <span class="g">**Why:**</span> Why this matters.
 
-<!-- Page 9 -->
-<div class="page" data-section="What's Next">
-<h1>What's Next</h1>
-<div class="underline">────────────────────</div>
-<p><strong class="highlight-green">TODAY:</strong> Install hooks. Try a review agent.</p>
-<p><strong class="highlight-green">THIS WEEK:</strong> Run 3 reviewers on a PR.<br><span class="dim">paw check (standard preset)</span></p>
-<p><strong class="highlight-green">NEXT WEEK:</strong> Full workflow.<br><span class="dim">architect → planner → devils-advocate → builder → code-reviewer</span></p>
-<p><strong class="highlight-green">WHEN READY:</strong> Graduate to forge.<br><span class="dim">46 agents, 15 parallel gates, self-healing.</span></p>
-<br>
-<p>Works with: <strong>Claude Code</strong>, <strong>Cursor</strong>, <strong>Codex CLI</strong></p>
-<p class="dim" style="margin-top:2rem">github.com/zofrus/paw &nbsp;·&nbsp; github.com/zofrus/forge</p>
-</div>
+  ## Hard rules
+  - ...
 
-</div><!-- /container -->
+  <span class="g">**Enforced by:**</span> which agent checks it.</pre><p>Reference it in the agent's Rules section. Now it's enforced.</p>`},
+    {s:"Customizing",t:"Add Your Own Agent",body:`<pre>  # agents/your-agent.md
 
-<div class="container">
-  <div class="nav">
-    <button id="prev" onclick="go(-1)" disabled>← Back</button>
-    <span class="progress" id="progress">1 / 10</span>
-    <button id="next" onclick="go(1)">Next →</button>
-  </div>
-</div>
+  ---
+  name: your-agent
+  description: What it does.
+  model: sonnet
+  tools: Read, Grep, Glob
+  ---
 
-<script>
-const pages = document.querySelectorAll('.page');
-const sections = [...new Set([...pages].map(p => p.dataset.section))];
-let current = 0;
+  Role, Context, Rules, Process, Done when.</pre><p>Most agents are read-only. Only grant write/bash when needed.</p>`},
+    {s:"Scaling Up",t:"paw → forge",body:`<table><tr><th>paw</th><th>forge</th></tr>
+<tr><td>18 agents</td><td>46 agents</td></tr>
+<tr><td>Manual invocation</td><td>16-phase pipeline</td></tr>
+<tr><td>You sequence work</td><td>Orchestrator does</td></tr>
+<tr><td>You run reviews</td><td>15 gates in parallel</td></tr>
+<tr><td>4 hooks</td><td>8 + self-healing</td></tr>
+<tr><td>6 rules</td><td>21 doctrine pages</td></tr></table>
+<p>Start with paw. Graduate to <a href="https://github.com/zofrus/forge" style="color:var(--cyan)">forge</a> when you're ready.</p>`},
+  ]
+},
+practice: {
+  title: "Practice with Examples", desc: "Run agents against a buggy app", time: "~5 min",
+  sections: ["The Buggy App","Run Agents","Results"],
+  pages: [
+    {s:"The Buggy App",t:"Meet the Buggy App",body:`<pre>  examples/buggy-app/app.py
+
+  <span class="r">6 security holes</span>     (can you find them?)
+  <span class="y">4 latent bugs</span>        (race, off-by-one)
+  <span class="y">1 N+1 query</span>          (perf)
+  <span class="r">0 tests</span>              (oops)
+  <span class="r">0 input validation</span>   (yikes)</pre><p>Run paw's agents and see how many issues they find. Don't read the spoilers yet.</p>`},
+    {s:"Run Agents",t:"Run the Security Reviewer",body:`<pre>  > Use the security-reviewer agent on
+    examples/buggy-app/</pre><p>Or: <code>paw gate security</code></p><p>Look for: OWASP categories, severity levels, exploit paths. How many of the 6 security holes does it find?</p>`},
+    {s:"Run Agents",t:"Run the Bug Auditor + Perf Checker",body:`<pre>  > Use the bug-auditor agent on examples/buggy-app/
+
+  > Use the perf-checker agent on examples/buggy-app/</pre><p>Bug auditor: look for reproduction scenarios. How many of the 4 bugs?</p><p>Perf checker: does it find the N+1? Does it explain why it matters at scale?</p>`},
+    {s:"Results",t:"Check Your Results",body:`<p>Open <code>examples/buggy-app/README.md</code> and click the spoiler tag.</p>
+<p>Compare what the agents found vs the full list.</p><br>
+<p><strong>Questions to consider:</strong></p>
+<ul style="padding-left:1.5rem">
+<li>Did each agent stay in its lane?</li>
+<li>Were severity levels accurate?</li>
+<li>Would you have caught all of these in a manual review?</li>
+</ul><br>
+<p>Now try: <code>paw check --thorough</code></p>`},
+  ]
+}
+};
+
+let currentTrack = null, currentPage = 0;
+const app = document.getElementById('app');
+
+function renderMenu() {
+  currentTrack = null;
+  document.getElementById('sidebar').innerHTML = '';
+  let html = `<div class="logo"><pre class="art">        _______________
+       /               \\
+      |  ┌───┐ ┌───┐  |
+      |  │ ● │ │ ● │  |
+      |  └───┘ └───┘  |
+      |      ___      |
+      |     /   \\     |
+      |    | === |    |
+       \\   \\_____/   /
+        \\___________/
+         /    |    \\
+        *     *     *
+
+     p a w
+     Personal Agent Workflows</pre></div>
+<h2>Choose a tutorial track:</h2>
+<div class="track-select">`;
+  for (const [id, t] of Object.entries(TRACKS)) {
+    html += `<div class="track-card" onclick="startTrack('${id}')">
+      <h3>${t.title}</h3>
+      <p>${t.desc}</p>
+      <span class="time">${t.time}</span>
+    </div>`;
+  }
+  html += '</div>';
+  app.innerHTML = html;
+}
+
+function startTrack(id) {
+  currentTrack = id;
+  currentPage = 0;
+  renderPage();
+}
+
+function renderPage() {
+  const t = TRACKS[currentTrack];
+  const p = t.pages[currentPage];
+  const sections = t.sections;
+  const curSection = p.s;
+
+  // Sidebar
+  const sb = document.getElementById('sidebar');
+  let shtml = `<div class="sidebar-label">${t.title.toUpperCase()}</div>`;
+  const secFirst = {};
+  t.pages.forEach((pg,i) => { if (!(pg.s in secFirst)) secFirst[pg.s] = i; });
+  sections.forEach(s => {
+    const fi = secFirst[s];
+    const cls = s===curSection?'active':(fi<currentPage?'done':'');
+    const m = s===curSection?'▸':(fi<currentPage?'✓':'·');
+    shtml += `<div class="sidebar-item ${cls}" onclick="currentPage=${fi};renderPage()">${m} ${s}</div>`;
+  });
+  sb.innerHTML = shtml;
+
+  // Content
+  let html = `<button class="back-btn" onclick="renderMenu()">← Back to tracks</button>`;
+  html += `<h1>${p.t}</h1><div class="underline">────────────────────</div>`;
+  if (p.art) html += `<pre class="art">${p.art}</pre>`;
+  html += p.body;
+  html += `<div class="nav">
+    <button onclick="go(-1)" ${currentPage===0?'disabled':''}>← Back</button>
+    <span class="progress">${currentPage+1} / ${t.pages.length}</span>
+    <button onclick="go(1)">${currentPage===t.pages.length-1?'Back to tracks →':'Next →'}</button>
+  </div>`;
+  app.innerHTML = html;
+}
 
 function go(dir) {
-  pages[current].classList.remove('active');
-  current = Math.max(0, Math.min(pages.length - 1, current + dir));
-  pages[current].classList.add('active');
-  update();
-}
-
-function jumpTo(i) {
-  pages[current].classList.remove('active');
-  current = i;
-  pages[current].classList.add('active');
-  update();
-}
-
-function update() {
-  document.getElementById('prev').disabled = current === 0;
-  document.getElementById('next').disabled = current === pages.length - 1;
-  document.getElementById('next').textContent = current === pages.length - 1 ? 'Done' : 'Next →';
-  document.getElementById('progress').textContent = `${current + 1} / ${pages.length}`;
-  buildSidebar();
-}
-
-function buildSidebar() {
-  const sb = document.getElementById('sidebar');
-  const curSection = pages[current].dataset.section;
-  let html = '<div class="sidebar-label">SECTIONS</div>';
-  const sectionFirstPage = {};
-  pages.forEach((p, i) => {
-    if (!(p.dataset.section in sectionFirstPage)) sectionFirstPage[p.dataset.section] = i;
-  });
-  sections.forEach(s => {
-    const fi = sectionFirstPage[s];
-    const cls = s === curSection ? 'active' : (fi < current ? 'done' : '');
-    const marker = s === curSection ? '▸' : (fi < current ? '✓' : '·');
-    html += `<div class="sidebar-item ${cls}" onclick="jumpTo(${fi})">${marker} ${s}</div>`;
-  });
-  sb.innerHTML = html;
+  const t = TRACKS[currentTrack];
+  if (dir > 0 && currentPage >= t.pages.length - 1) { renderMenu(); return; }
+  currentPage = Math.max(0, Math.min(t.pages.length-1, currentPage+dir));
+  renderPage();
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowRight' || e.key === ' ') go(1);
-  if (e.key === 'ArrowLeft') go(-1);
+  if (!currentTrack) return;
+  if (e.key==='ArrowRight'||e.key===' ') go(1);
+  if (e.key==='ArrowLeft') go(-1);
+  if (e.key==='Escape') renderMenu();
 });
 
-update();
+renderMenu();
 </script>
 </body>
 </html>
