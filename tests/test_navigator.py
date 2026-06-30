@@ -122,7 +122,7 @@ def test_navigator_skip_all_sections():
 
 
 def test_page_count():
-    assert len(PAGES) == 10
+    assert len(PAGES) == 12
 
 
 def test_section_count():
@@ -210,9 +210,10 @@ def test_truncate_to_width():
 
 
 def test_all_tracks_exist():
-    assert len(TRACKS) == 5
+    assert len(TRACKS) == 7
     track_ids = {t["id"] for t in TRACKS}
-    assert track_ids == {"learn", "start", "cli", "advanced", "practice"}
+    expected = {"learn", "start", "cli", "advanced", "practice", "try", "contribute"}
+    assert track_ids == expected
 
 
 def test_all_tracks_have_content():

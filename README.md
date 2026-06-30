@@ -83,11 +83,11 @@ Interactive walkthrough with sidebar navigation, ASCII art, and typewriter anima
 ### Browser
 
 ```bash
-./paw tutorial --web
-# or: python3 -m http.server 8080 & open http://localhost:8080/tutorial.html
+open tutorial.html         # macOS — opens directly, no server needed
+# or: ./paw tutorial --web
 ```
 
-Same content, dark theme, sidebar navigation. For designers and PMs who prefer a browser.
+Self-contained HTML file — no server required. Dark theme, sidebar navigation, keyboard shortcuts (arrow keys, Escape). 7 tracks including hands-on workshops and contributor guide.
 
 ## What's inside
 
