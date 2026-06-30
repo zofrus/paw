@@ -78,7 +78,7 @@ Two ways to learn paw:
 Interactive walkthrough with sidebar navigation, ASCII art, and typewriter animations. 17 pages, 7 sections, ~5 minutes. Choose between:
 
 - **Learn paw** — what paw is, how it works, the components
-- **Hands-on** — install hooks, run agents, write a rule (for Tech Forge)
+- **Hands-on** — install hooks, run agents, write a rule
 
 ### Browser
 
@@ -289,6 +289,20 @@ paw doctor
 ```
 
 Checks: Python version, curses module, hook files, settings.json, agent count, hook self-test, and test suite. Tells you exactly what's wrong and how to fix it.
+
+## Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
+
+**Before submitting a PR**, run these checks locally:
+
+```bash
+python3 -m pytest tests/ -v      # 64 tests must pass
+ruff check .                     # zero lint errors
+ruff format --check .            # formatting must match
+```
+
+All PRs require maintainer approval before merging. Open an issue first for large changes so we can discuss the approach.
 
 ## Want the full pipeline?
 
